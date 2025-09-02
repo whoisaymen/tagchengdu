@@ -1,0 +1,12 @@
+{
+  "navigation": {
+    "about": "About",
+    "events": "Events",
+    "artists": "Artists",
+    "shop": "Shop"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error occurred"
+  }
+}

@@ -16,6 +16,8 @@ import {
   type DocumentLocation,
 } from 'sanity/presentation'
 import {assist} from '@sanity/assist'
+import {documentInternationalization} from '@sanity/document-internationalization'
+import StudioLogoNew from './components/StudioLogo'
 
 // Environment variables for project configuration
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
@@ -47,7 +49,8 @@ function resolveHref(documentType?: string, slug?: string): string | undefined {
 // Main Sanity configuration
 export default defineConfig({
   name: 'default',
-  title: 'Sanity + Next.js Starter Template',
+  title: '.TAG',
+  icon: StudioLogoNew,
 
   projectId,
   dataset,
@@ -126,6 +129,13 @@ export default defineConfig({
     unsplashImageAsset(),
     assist(),
     visionTool(),
+    documentInternationalization({
+      supportedLanguages: [
+        {id: 'en', title: 'English'},
+        {id: 'cn', title: '中文'},
+      ],
+      schemaTypes: ['post', 'page'],
+    }),
   ],
 
   // Schema configuration, imported from ./src/schemaTypes/index.ts

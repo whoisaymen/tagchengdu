@@ -1,6 +1,7 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @plugin "@tailwindcss/typography";
+@plugin 'tailwind-scrollbar';
 
 @utility container {
   margin: 0 auto;
@@ -28,8 +29,22 @@
   --color-gray-900: #1b1d27;
   --color-gray-950: #13141b;
 
-  --font-display: "Inter", "sans-serif";
-  --font-sans: "Inter", "sans-serif";
+  --font-display: 'Inter', 'sans-serif';
+  --font-sans: 'Inter', 'sans-serif';
 
   --default-transition-duration: 250ms;
+}
+
+.text-glow {
+  text-shadow: 0 2px 2px #05161f;
+  /* 0 1px 1px #05161f; */
+}
+
+.no-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
