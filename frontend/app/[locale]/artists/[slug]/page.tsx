@@ -27,7 +27,7 @@ import { useMemo } from 'react'
 import Loading from './loading'
 
 type Props = {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string; locale?: string }>
 }
 
 type ArtistData = {
@@ -81,7 +81,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function ArtistPage(props: Props) {
   const params = await props.params
-  const locale = await getLocale()
+  console.log('ArtistPage params:', params)
+  const locale = params.locale || 'en'
 
   const { data: artist } = (await sanityFetch({
     query: artistQuery,
