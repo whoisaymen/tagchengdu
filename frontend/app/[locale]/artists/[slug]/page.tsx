@@ -60,11 +60,11 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
-  const { data: artist } = await sanityFetch({
+  const { data: artist } = (await sanityFetch({
     query: artistMetadataQuery,
     params,
     stega: false,
-  })
+  })) as { data: ArtistData | null }
 
   return {
     title: artist?.name || 'Artist',
