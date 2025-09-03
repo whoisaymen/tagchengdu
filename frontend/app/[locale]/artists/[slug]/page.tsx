@@ -27,7 +27,7 @@ import { useMemo } from 'react'
 import Loading from './loading'
 
 type Props = {
-  params: Promise<{ slug: string; locale?: string }>
+  params: Promise<{ slug: string; locale: string }>
 }
 
 type ArtistData = {
@@ -58,25 +58,55 @@ export async function generateStaticParams() {
   return data
 }
 
-export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string; locale: string }>
+}): Promise<Metadata> {
+  const resolvedParams = await params
+  const locale = resolvedParams.locale
+
   const { data: artist } = (await sanityFetch({
-    query: artistMetadataQuery,
-    params,
+    query: artistQuery,
+    params: { slug: resolvedParams.slug },
     stega: false,
   })) as { data: ArtistData | null }
 
+  if (!artist) {
+    return {
+      title: 'Artist Not Found',
+      description: 'We could not find the requested artist.',
+    }
+  }
+
+  // Extract description from bio if available
+  let description = 'Artist at TAG Chengdu'
+  const bioContent = artist.bio?.[locale] || artist.bio?.en
+  if (bioContent) {
+    if (typeof bioContent === 'string') {
+      description = bioContent.substring(0, 160)
+    } else if (Array.isArray(bioContent)) {
+      // Extract text from portable text blocks
+      description = bioContent
+        .filter((block) => block._type === 'block')
+        .map(
+          (block) =>
+            block.children?.map((child: any) => child.text).join('') || ''
+        )
+        .join(' ')
+        .substring(0, 160)
+    }
+  }
+
   return {
-    title: artist?.name || 'Artist',
-    description: artist?.bio?.en
-      ? typeof artist.bio.en === 'string'
-        ? artist.bio.en
-        : 'Artist at TAG Chengdu'
-      : 'Artist at TAG Chengdu',
-    openGraph: artist?.profileImage?.asset?.url
-      ? { images: [{ url: artist.profileImage.asset.url }] }
+    title: `${artist.name || 'Artist'} | TAG Chengdu`,
+    description,
+    openGraph: artist.profileImage?.asset?.url
+      ? {
+          images: [{ url: artist.profileImage.asset.url }],
+        }
       : undefined,
-  } satisfies Metadata
+  }
 }
 
 export default async function ArtistPage(props: Props) {

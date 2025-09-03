@@ -761,7 +761,7 @@ export type ArtistsSlugsResult = Array<never>;
 // Query: *[_type == "about"][0]{    description  }
 export type AboutQueryResult = null;
 // Variable: artistQuery
-// Query: *[_type == "artist" && slug.current == $slug][0]{    name,    profileImage,    bio,    upNext,    contact,    socialLinks[]{      platform,      url    }  }
+// Query: *[_type == "artist" && slug.current == $slug][0]{    name,    profileImage,    bio,    upNext,    contact,    socialLinks[]{      platform,      url    },    instagram,    soundcloud,    raLink,    musicLink  }
 export type ArtistQueryResult = null;
 // Variable: eventsQuery
 // Query: *[_type == "event"] | order(date asc) {    _id,    title,    date,    description,    tagLineup,    hiddenBarLineup  }
@@ -782,7 +782,7 @@ declare module "@sanity/client" {
     "\n  *[_type == \"page\" && defined(slug.current)]\n  {\"slug\": slug.current}\n": PagesSlugsResult;
     "\n  *[_type == \"artist\" && defined(slug.current)]\n  {\"slug\": slug.current}\n": ArtistsSlugsResult;
     "\n  *[_type == \"about\"][0]{\n    description\n  }\n": AboutQueryResult;
-    "\n  *[_type == \"artist\" && slug.current == $slug][0]{\n    name,\n    profileImage,\n    bio,\n    upNext,\n    contact,\n    socialLinks[]{\n      platform,\n      url\n    }\n  }\n": ArtistQueryResult;
+    "\n  *[_type == \"artist\" && slug.current == $slug][0]{\n    name,\n    profileImage,\n    bio,\n    upNext,\n    contact,\n    socialLinks[]{\n      platform,\n      url\n    },\n    instagram,\n    soundcloud,\n    raLink,\n    musicLink\n  }\n": ArtistQueryResult;
     "\n  *[_type == \"event\"] | order(date asc) {\n    _id,\n    title,\n    date,\n    description,\n    tagLineup,\n    hiddenBarLineup\n  }\n": EventsQueryResult;
   }
 }

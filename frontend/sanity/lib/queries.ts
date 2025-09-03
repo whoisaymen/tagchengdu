@@ -115,6 +115,20 @@ export const aboutQuery = defineQuery(`
   }
 `)
 
+// export const artistQuery = defineQuery(`
+//   *[_type == "artist" && slug.current == $slug][0]{
+//     name,
+//     profileImage,
+//     bio,
+//     upNext,
+//     contact,
+//     socialLinks[]{
+//       platform,
+//       url
+//     }
+//   }
+// `)
+
 export const artistQuery = defineQuery(`
   *[_type == "artist" && slug.current == $slug][0]{
     name,
@@ -125,7 +139,11 @@ export const artistQuery = defineQuery(`
     socialLinks[]{
       platform,
       url
-    }
+    },
+    instagram,
+    soundcloud,
+    raLink,
+    musicLink
   }
 `)
 
