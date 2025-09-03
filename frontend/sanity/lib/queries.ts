@@ -27,6 +27,14 @@ const linkFields = /* groq */ `
       }
 `
 
+export const artistMetadataQuery = defineQuery(`
+  *[_type == "artist" && slug.current == $slug][0]{
+    name,
+    bio,
+    profileImage
+  }
+`)
+
 export const getPageQuery = defineQuery(`
   *[_type == 'page' && slug.current == $slug][0]{
     _id,
@@ -93,6 +101,11 @@ export const postPagesSlugs = defineQuery(`
 
 export const pagesSlugs = defineQuery(`
   *[_type == "page" && defined(slug.current)]
+  {"slug": slug.current}
+`)
+
+export const artistsSlugs = defineQuery(`
+  *[_type == "artist" && defined(slug.current)]
   {"slug": slug.current}
 `)
 

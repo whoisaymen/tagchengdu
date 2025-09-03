@@ -9,7 +9,12 @@ import { FaCirclePlay } from 'react-icons/fa6'
 
 import { IoIosMusicalNotes } from 'react-icons/io'
 import { sanityFetch } from '@/sanity/lib/live'
-import { artistQuery, getPageQuery, pagesSlugs } from '@/sanity/lib/queries'
+import {
+  artistMetadataQuery,
+  artistQuery,
+  artistsSlugs,
+  getPageQuery,
+} from '@/sanity/lib/queries'
 import { GetPageQueryResult } from '@/sanity.types'
 import { PageOnboarding } from '@/app/components/Onboarding'
 import ArtistTitleSvg from '@/app/components/svg/ArtistTitle'
@@ -46,7 +51,7 @@ type ArtistData = {
 
 export async function generateStaticParams() {
   const { data } = await sanityFetch({
-    query: pagesSlugs,
+    query: artistsSlugs,
     perspective: 'published',
     stega: false,
   })
@@ -55,15 +60,22 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
-  const { data: page } = await sanityFetch({
-    query: getPageQuery,
+  const { data: artist } = await sanityFetch({
+    query: artistMetadataQuery,
     params,
     stega: false,
   })
 
   return {
-    title: page?.name,
-    description: page?.heading,
+    title: artist?.name || 'Artist',
+    description: artist?.bio?.en
+      ? typeof artist.bio.en === 'string'
+        ? artist.bio.en
+        : 'Artist at TAG Chengdu'
+      : 'Artist at TAG Chengdu',
+    openGraph: artist?.profileImage?.asset?.url
+      ? { images: [{ url: artist.profileImage.asset.url }] }
+      : undefined,
   } satisfies Metadata
 }
 
