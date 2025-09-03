@@ -50,12 +50,25 @@ type ArtistData = {
 }
 
 export async function generateStaticParams() {
+  // Get all artist slugs
   const { data } = await sanityFetch({
     query: artistsSlugs,
     perspective: 'published',
     stega: false,
   })
-  return data
+
+  // Generate paths for all locales
+  const locales = ['en', 'zh'] // List your supported locales
+
+  // Return all combinations
+  return (
+    data?.flatMap((item: any) =>
+      locales.map((locale) => ({
+        slug: item.slug,
+        locale,
+      }))
+    ) || []
+  )
 }
 
 export async function generateMetadata({
