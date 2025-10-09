@@ -26,18 +26,23 @@ export default function HeaderNav() {
   ]
 
   return (
-    <nav className='flex justify-between items-center w-full z-[10000] relative mix-blend-difference  '>
+    <nav className='flex justify-between items-center w-full relative'>
       <div className='flex items-center lg:gap-x-4 gap-x-2 w-full justify-between lg:w-auto lg:justify-start leading-[1.15]'>
         <LanguageToggle />
         {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className={`bg-[#05161F] px-[0.5rem] lg:px-3 rounded-full hover:bg-[#E9EDB9] hover:text-[#05161F] ${
-              pathname.startsWith(link.match)
-                ? 'bg-[#E9EDB9] text-[#05161F]'
-                : ''
-            }`}
+            className={`
+              px-[0.5rem] lg:px-3 rounded-full
+              transition-all duration-200
+              relative
+              ${
+                pathname.startsWith(link.match)
+                  ? 'bg-[#05161F] text-[#E9EDB9] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.6),inset_-1px_-1px_3px_rgba(255,255,255,0.1)] [mix-blend-mode:difference]'
+                  : 'bg-[#E9EDB9] text-[#05161F] shadow-[2px_2px_4px_rgba(0,0,0,0.3),-1px_-1px_3px_rgba(255,255,255,0.4)] hover:shadow-[inset_1px_1px_3px_rgba(0,0,0,0.3)]'
+              }
+            `}
           >
             {link.label}
           </Link>

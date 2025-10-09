@@ -17,6 +17,7 @@ export default defineType({
       type: 'datetime',
       validation: (Rule) => Rule.required(),
     }),
+    defineField({
       name: 'description',
       title: 'Description',
       type: 'text',

@@ -106,7 +106,10 @@ export const pagesSlugs = defineQuery(`
 
 export const artistsSlugs = defineQuery(`
   *[_type == "artist" && defined(slug.current)]
-  {"slug": slug.current}
+  {
+    "slug": slug.current,
+    "name": name
+  }
 `)
 
 export const aboutQuery = defineQuery(`
@@ -143,7 +146,8 @@ export const artistQuery = defineQuery(`
     instagram,
     soundcloud,
     raLink,
-    musicLink
+    musicLink,
+    customSVG
   }
 `)
 

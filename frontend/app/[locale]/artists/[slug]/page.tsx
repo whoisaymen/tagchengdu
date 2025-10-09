@@ -25,6 +25,7 @@ import { notFound } from 'next/navigation'
 import ArtistImage from '@/app/components/artists/ArtistImage'
 import { useMemo } from 'react'
 import Loading from './loading'
+import SwirlArtistPage from '@/app/components/svg/SwirlArtistPage'
 
 type Props = {
   params: Promise<{ slug: string; locale: string }>
@@ -47,6 +48,7 @@ type ArtistData = {
   soundcloud?: string
   raLink?: string
   musicLink?: string
+  customSVG?: string
 }
 
 export async function generateStaticParams() {
@@ -184,10 +186,26 @@ export default async function ArtistPage(props: Props) {
     return platformIcons[platform] || platformIcons.other
   }
 
+  console.log('Rendering artist:', artist)
+
   return (
     // <Loading />
     <div className='font-[family-name:var(--font-kleber)] flex flex-col lg:flex-row relative h-full justify-between'>
-      <div className='w-full h-[45svh] lg:h-full relative'>
+      <div className='w-full h-[50svh] lg:h-full relative'>
+        <SwirlArtistPage
+          theme={{ fill: '#05161F' }}
+          className='w-[80%] lg:w-[40vw] saturate-0'
+          animate={{
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 6.5,
+            ease: 'linear',
+            repeat: Infinity,
+
+            delay: 0,
+          }}
+        />
         {artist.profileImage && (
           <ArtistImage
             image={artist.profileImage}
@@ -206,11 +224,14 @@ export default async function ArtistPage(props: Props) {
         <AnimatedGradient />
       </div>
 
-      <div className='w-full lg:min-h-svh bg-[#B3C200] flex flex-col items-center justify-between'>
-        <div className='w-full h-[30svh] lg:h-[65vh] text-[#05161F] font-[family-name:var(--font-geist-sans)]  flex flex-col justify-between py-0 relative tracking-tighter lg:pt-16 '>
-          {/* <FaCirclePlay className='absolute left-4 top-8 text-4xl' /> */}
-          <div className='pointer-events-none absolute left-0 right-0 bottom-0 h-16 bg-gradient-to-t from-[#B3C200] to-transparent' />
-          <div className='overflow-y-scroll h-full px-4 pb-12 space-y-8 mt-4 scrollbar scrollbar-thumb-[#B3C200] scrollbar-track-[#B3C200] '>
+      <div className='w-full h-[50svh] lg:h-full bg-[#B3C200] flex flex-col'>
+        {/* Biography Section - Takes remaining space, scrollable */}
+        <div className='flex-1 text-[#05161F] font-[family-name:var(--font-geist-sans)] flex flex-col relative tracking-tighter lg:pt-16 overflow-hidden'>
+          {/* Bottom fade */}
+          <div className='pointer-events-none absolute left-0 right-0 bottom-0 h-24 bg-gradient-to-t from-[#B3C200] via-[#B3C200]/80 to-transparent z-10' />
+
+          {/* Scrollable content */}
+          <div className='overflow-y-scroll h-full px-4 pb-12 space-y-8 mt-4 scrollbar scrollbar-thumb-[#B3C200] scrollbar-track-[#B3C200]'>
             <PortableText
               value={artist.bio?.[locale] || artist.bio?.en || []}
               components={{
@@ -232,8 +253,9 @@ export default async function ArtistPage(props: Props) {
             />
           </div>
         </div>
-        <div className='pl-2 pr-3 md:p-4 w-full text-center bg-[#B3C200] text-[#05161F] flex justify-center items-start uppercase pt-0 flex-col lg:gap-1 font-[family-name:var(--font-geist-sans)] tracking-tighter text-xl lg:text-3xl h-[25svh] lg:h-auto'>
-          <div className='flex justify-between w-full -mb-4'>
+
+        <div className='flex-shrink-0 w-full text-center bg-[#B3C200] text-[#05161F] flex flex-col justify-end uppercase font-[family-name:var(--font-geist-sans)] tracking-tighter text-xl lg:text-3xl pb-1 lg:pb-2'>
+          <div className='flex justify-between w-full px-2 pr-3 mb-1 lg:mb-4'>
             <div className='flex items-center gap-x-0 lg:gap-x-1'>
               <ArrowRight
                 theme={{ fill: '#05161F' }}
@@ -275,7 +297,6 @@ export default async function ArtistPage(props: Props) {
                   <FaSoundcloud className='bg-[#05161F] rounded-full text-[#B3C200] p-1' />
                 </a>
               )}
-              {/* {artist.raLink && ( */}
               <a
                 href={artist.raLink}
                 target='_blank'
@@ -298,7 +319,6 @@ export default async function ArtistPage(props: Props) {
                   </g>
                 </svg>
               </a>
-              {/* )} */}
               {artist.musicLink && (
                 <a
                   href={artist.musicLink}
@@ -310,16 +330,32 @@ export default async function ArtistPage(props: Props) {
               )}
             </div>
           </div>
-          <ArtistTitle
+
+          {/* Artist Title - Scales based on name length */}
+          {/* <ArtistTitle
             name={sanitizeArtistName(artist.name)}
-            // name='Kaishandao'
-            className='w-full h-auto relative'
-          />
+            className='w-full max-h-[20vh] lg:max-h-[25vh]'
+          /> */}
+
+          {artist.customSVG && (
+            <div
+              className='w-full max-h-[25svh] flex justify-center items-center p-1 lg:px-2 pt-0'
+              style={
+                {
+                  aspectRatio: 'auto',
+                  '--artist-title-main': '#05161F',
+                  '--artist-title-gradient': '#B25403',
+                } as React.CSSProperties & Record<string, string>
+              }
+              dangerouslySetInnerHTML={{ __html: artist.customSVG }}
+            />
+          )}
         </div>
       </div>
     </div>
   )
 }
+
 function ArtistTitle({
   name,
   className,
@@ -358,7 +394,7 @@ function ArtistTitle({
         x='0'
         y={textY}
         textLength='1000'
-        lengthAdjust='spacingAndGlyphs'
+        // lengthAdjust='spacingAndGlyphs'
         fontFamily="'Kleber Unlicensed Trial Version Stark', var(--font-kleber), sans-serif"
         fontWeight='bold'
         fontSize={fontSize}
@@ -370,6 +406,58 @@ function ArtistTitle({
     </svg>
   )
 }
+
+// function ArtistTitle({
+//   name,
+//   className,
+// }: {
+//   name: string
+//   className?: string
+// }) {
+//   // Calculate font size based on name length
+//   const baseSize = 400
+//   const lengthFactor = Math.max(0.4, 1 / Math.sqrt(name.length * 0.25))
+//   const fontSize = baseSize * lengthFactor
+
+//   // Height scales with font size
+//   const height = fontSize * 1.2
+//   const textY = height * 0.85
+
+//   return (
+//     <svg
+//       className={className}
+//       viewBox={`0 0 1000 ${height}`}
+//       preserveAspectRatio='xMidYMid meet'
+//       style={{ display: 'block' }}
+//     >
+//       <defs>
+//         <linearGradient
+//           id='artist-gradient'
+//           x1='0'
+//           y1={height}
+//           x2='0'
+//           y2='0'
+//           gradientUnits='userSpaceOnUse'
+//         >
+//           <stop offset='0%' stopColor='#b25403' />
+//           <stop offset='30%' stopColor='#05161F' />
+//         </linearGradient>
+//       </defs>
+//       <text
+//         x='500'
+//         y={textY}
+//         textAnchor='middle'
+//         fontFamily="'Kleber Unlicensed Trial Version Stark', var(--font-kleber), sans-serif"
+//         fontWeight='bold'
+//         fontSize={fontSize}
+//         fill='url(#artist-gradient)'
+//         dominantBaseline='auto'
+//       >
+//         {name}
+//       </text>
+//     </svg>
+//   )
+// }
 
 function sanitizeArtistName(name: string | undefined) {
   if (!name) return 'Artist'

@@ -100,9 +100,8 @@ export default async function LocaleLayout({
           )}
           {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
           <SanityLive onError={handleError} />
-          <div className='relative mix-blend-difference z-[100000]'>
-            <Header />
-          </div>
+
+          <Header />
 
           <main className='h-svh overflow-y-scroll no-scrollbar'>
             <AnimatedSwirl />

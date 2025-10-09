@@ -13,6 +13,144 @@
  */
 
 // Source: schema.json
+export type About = {
+  _id: string;
+  _type: "about";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  description: LocaleBlockContent;
+};
+
+export type Lineup = {
+  _type: "lineup";
+  artist?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "artist";
+  };
+  name?: string;
+};
+
+export type Event = {
+  _id: string;
+  _type: "event";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  date: string;
+  description: string;
+  tagLineup?: Array<{
+    _key: string;
+  } & Lineup>;
+  hiddenBarLineup?: Array<{
+    _key: string;
+  } & Lineup>;
+};
+
+export type Artist = {
+  _id: string;
+  _type: "artist";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  slug: Slug;
+  profileImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: LocaleString;
+    _type: "image";
+  };
+  bio: LocaleBlockContent;
+  gigs?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "event";
+  } | {
+    title?: string;
+    date?: string;
+    location?: string;
+    _type: "customGig";
+    _key: string;
+  }>;
+  contact?: string;
+  socialLinks?: Array<{
+    platform?: "instagram" | "soundcloud" | "residentadvisor" | "mixcloud" | "applemusic" | "bandcamp" | "other";
+    url?: string;
+    _type: "socialLink";
+    _key: string;
+  }>;
+  mediaFile?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
+    };
+    media?: unknown;
+    _type: "file";
+  };
+  customSVG: string;
+};
+
+export type LocaleBlockContent = {
+  _type: "localeBlockContent";
+  en?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  cn?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+};
+
+export type LocaleString = {
+  _type: "localeString";
+  en?: string;
+  cn?: string;
+};
+
 export type CallToAction = {
   _type: "callToAction";
   heading: string;
@@ -166,21 +304,31 @@ export type Settings = {
   };
 };
 
-export type Page = {
+export type TranslationMetadata = {
   _id: string;
-  _type: "page";
+  _type: "translation.metadata";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  name: string;
-  slug: Slug;
-  heading: string;
-  subheading?: string;
-  pageBuilder?: Array<{
+  translations?: Array<{
     _key: string;
-  } & CallToAction | {
-    _key: string;
-  } & InfoSection>;
+  } & InternationalizedArrayReferenceValue>;
+  schemaTypes?: Array<string>;
+};
+
+export type InternationalizedArrayReferenceValue = {
+  _type: "internationalizedArrayReferenceValue";
+  value?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "post";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "page";
+  };
 };
 
 export type Post = {
@@ -237,6 +385,27 @@ export type Person = {
     _type: "image";
   };
 };
+
+export type Page = {
+  _id: string;
+  _type: "page";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  slug: Slug;
+  heading: string;
+  subheading?: string;
+  pageBuilder?: Array<{
+    _key: string;
+  } & CallToAction | {
+    _key: string;
+  } & InfoSection>;
+};
+
+export type InternationalizedArrayReference = Array<{
+  _key: string;
+} & InternationalizedArrayReferenceValue>;
 
 export type SanityAssistInstructionTask = {
   _type: "sanity.assist.instructionTask";
@@ -477,7 +646,7 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = CallToAction | Link | InfoSection | BlockContent | Settings | Page | Post | Person | SanityAssistInstructionTask | SanityAssistTaskStatus | SanityAssistSchemaTypeAnnotations | SanityAssistOutputType | SanityAssistOutputField | SanityAssistInstructionContext | AssistInstructionContext | SanityAssistInstructionUserInput | SanityAssistInstructionPrompt | SanityAssistInstructionFieldRef | SanityAssistInstruction | SanityAssistSchemaTypeField | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = About | Lineup | Event | Artist | LocaleBlockContent | LocaleString | CallToAction | Link | InfoSection | BlockContent | Settings | TranslationMetadata | InternationalizedArrayReferenceValue | Post | Person | Page | InternationalizedArrayReference | SanityAssistInstructionTask | SanityAssistTaskStatus | SanityAssistSchemaTypeAnnotations | SanityAssistOutputType | SanityAssistOutputField | SanityAssistInstructionContext | AssistInstructionContext | SanityAssistInstructionUserInput | SanityAssistInstructionPrompt | SanityAssistInstructionFieldRef | SanityAssistInstruction | SanityAssistSchemaTypeField | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./sanity/lib/queries.ts
 // Variable: settingsQuery
@@ -538,7 +707,23 @@ export type SettingsQueryResult = {
 } | null;
 // Variable: artistMetadataQuery
 // Query: *[_type == "artist" && slug.current == $slug][0]{    name,    bio,    profileImage  }
-export type ArtistMetadataQueryResult = null;
+export type ArtistMetadataQueryResult = {
+  name: string;
+  bio: LocaleBlockContent;
+  profileImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: LocaleString;
+    _type: "image";
+  };
+} | null;
 // Variable: getPageQuery
 // Query: *[_type == 'page' && slug.current == $slug][0]{    _id,    _type,    name,    slug,    heading,    subheading,    "pageBuilder": pageBuilder[]{      ...,      _type == "callToAction" => {          link {      ...,        _type == "link" => {    "page": page->slug.current,    "post": post->slug.current  }      },      },      _type == "infoSection" => {        content[]{          ...,          markDefs[]{            ...,              _type == "link" => {    "page": page->slug.current,    "post": post->slug.current  }          }        }      },    },  }
 export type GetPageQueryResult = {
@@ -755,17 +940,60 @@ export type PagesSlugsResult = Array<{
   slug: string;
 }>;
 // Variable: artistsSlugs
-// Query: *[_type == "artist" && defined(slug.current)]  {"slug": slug.current}
-export type ArtistsSlugsResult = Array<never>;
+// Query: *[_type == "artist" && defined(slug.current)]  {    "slug": slug.current,    "name": name  }
+export type ArtistsSlugsResult = Array<{
+  slug: string;
+  name: string;
+}>;
 // Variable: aboutQuery
 // Query: *[_type == "about"][0]{    description  }
-export type AboutQueryResult = null;
+export type AboutQueryResult = {
+  description: LocaleBlockContent;
+} | null;
 // Variable: artistQuery
-// Query: *[_type == "artist" && slug.current == $slug][0]{    name,    profileImage,    bio,    upNext,    contact,    socialLinks[]{      platform,      url    },    instagram,    soundcloud,    raLink,    musicLink  }
-export type ArtistQueryResult = null;
+// Query: *[_type == "artist" && slug.current == $slug][0]{    name,    profileImage,    bio,    upNext,    contact,    socialLinks[]{      platform,      url    },    instagram,    soundcloud,    raLink,    musicLink,    customSVG  }
+export type ArtistQueryResult = {
+  name: string;
+  profileImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: LocaleString;
+    _type: "image";
+  };
+  bio: LocaleBlockContent;
+  upNext: null;
+  contact: string | null;
+  socialLinks: Array<{
+    platform: "applemusic" | "bandcamp" | "instagram" | "mixcloud" | "other" | "residentadvisor" | "soundcloud" | null;
+    url: string | null;
+  }> | null;
+  instagram: null;
+  soundcloud: null;
+  raLink: null;
+  musicLink: null;
+  customSVG: string;
+} | null;
 // Variable: eventsQuery
 // Query: *[_type == "event"] | order(date asc) {    _id,    title,    date,    description,    tagLineup,    hiddenBarLineup  }
-export type EventsQueryResult = Array<never>;
+export type EventsQueryResult = Array<{
+  _id: string;
+  title: string;
+  date: string;
+  description: string;
+  tagLineup: Array<{
+    _key: string;
+  } & Lineup> | null;
+  hiddenBarLineup: Array<{
+    _key: string;
+  } & Lineup> | null;
+}>;
 
 // Query TypeMap
 import "@sanity/client";
@@ -780,9 +1008,9 @@ declare module "@sanity/client" {
     "\n  *[_type == \"post\" && slug.current == $slug] [0] {\n    content[]{\n    ...,\n    markDefs[]{\n      ...,\n      \n  _type == \"link\" => {\n    \"page\": page->slug.current,\n    \"post\": post->slug.current\n  }\n\n    }\n  },\n    \n  _id,\n  \"status\": select(_originalId in path(\"drafts.**\") => \"draft\", \"published\"),\n  \"title\": coalesce(title, \"Untitled\"),\n  \"slug\": slug.current,\n  excerpt,\n  coverImage,\n  \"date\": coalesce(date, _updatedAt),\n  \"author\": author->{firstName, lastName, picture},\n\n  }\n": PostQueryResult;
     "\n  *[_type == \"post\" && defined(slug.current)]\n  {\"slug\": slug.current}\n": PostPagesSlugsResult;
     "\n  *[_type == \"page\" && defined(slug.current)]\n  {\"slug\": slug.current}\n": PagesSlugsResult;
-    "\n  *[_type == \"artist\" && defined(slug.current)]\n  {\"slug\": slug.current}\n": ArtistsSlugsResult;
+    "\n  *[_type == \"artist\" && defined(slug.current)]\n  {\n    \"slug\": slug.current,\n    \"name\": name\n  }\n": ArtistsSlugsResult;
     "\n  *[_type == \"about\"][0]{\n    description\n  }\n": AboutQueryResult;
-    "\n  *[_type == \"artist\" && slug.current == $slug][0]{\n    name,\n    profileImage,\n    bio,\n    upNext,\n    contact,\n    socialLinks[]{\n      platform,\n      url\n    },\n    instagram,\n    soundcloud,\n    raLink,\n    musicLink\n  }\n": ArtistQueryResult;
+    "\n  *[_type == \"artist\" && slug.current == $slug][0]{\n    name,\n    profileImage,\n    bio,\n    upNext,\n    contact,\n    socialLinks[]{\n      platform,\n      url\n    },\n    instagram,\n    soundcloud,\n    raLink,\n    musicLink,\n    customSVG\n  }\n": ArtistQueryResult;
     "\n  *[_type == \"event\"] | order(date asc) {\n    _id,\n    title,\n    date,\n    description,\n    tagLineup,\n    hiddenBarLineup\n  }\n": EventsQueryResult;
   }
 }

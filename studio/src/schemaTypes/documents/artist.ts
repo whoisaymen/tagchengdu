@@ -188,6 +188,15 @@ export const artist = defineType({
         accept: 'audio/*',
       },
     }),
+
+    defineField({
+      name: 'customSVG',
+      title: 'Custom SVG Markup',
+      type: 'text',
+      description: 'Paste SVG markup here for custom artist title graphics.',
+      validation: (Rule) =>
+        Rule.required().error('You must provide SVG markup to publish this artist.'),
+    }),
   ],
   preview: {
     select: {

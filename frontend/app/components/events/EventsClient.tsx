@@ -41,8 +41,8 @@ export default function EventsClient({ events }: { events: Event[] }) {
               events={eventsByMonth.get(`${currentYear}-${currentMonth}`)!}
             />
           ) : (
-            <p className='text-white text-center text-xl pt-20'>
-              No events this month
+            <p className='text-[#E9EDB9] tracking-tight text-center text-xl pt-20'>
+              No events this month.
             </p>
           )}
         </main>

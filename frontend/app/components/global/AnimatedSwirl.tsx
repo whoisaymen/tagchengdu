@@ -26,7 +26,7 @@ function AnimatedSwirl() {
   }
 
   return (
-    <div className='absolute inset-0 mix-blend-overlay pointer-events-none z-[1000] overflow-hidden opacity-5'>
+    <div className='absolute inset-0 mix-blend-overlay pointer-events-none z-[1000] overflow-hidden opacity-20'>
       <Swirl
         theme={{ fill: '#05161F' }}
         className='w-[35vw]'

@@ -66,7 +66,6 @@ export default function LanguageToggle() {
   const pathname = usePathname()
   const locale = useLocale()
 
-  console.log(routing.locales, 'routing.locales')
   const handleChange = (newLocale: string) => {
     // Remove current locale from pathname
     const pathSegments = pathname.split('/').filter(Boolean)
