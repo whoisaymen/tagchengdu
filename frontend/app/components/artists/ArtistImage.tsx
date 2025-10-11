@@ -1,7 +1,7 @@
 import { stegaClean } from '@sanity/client/stega'
-import { Image } from 'next-sanity/image'
 import { getImageDimensions } from '@sanity/asset-utils'
 import { urlForImage } from '@/sanity/lib/utils'
+import Image from 'next/image'
 
 interface ArtistImageProps {
   image: any
@@ -10,18 +10,33 @@ interface ArtistImageProps {
   className?: string
 }
 
-export default function ArtistImage(props: ArtistImageProps) {
-  const { image: source, alt, priority, className } = props
-  const image = source?.asset?._ref ? (
-    <Image
-      className={className || 'object-cover w-full h-full'}
-      width={getImageDimensions(source).width}
-      height={getImageDimensions(source).height}
-      alt={stegaClean(alt) || ''}
-      src={urlForImage(source)?.url() as string}
-      priority={priority}
-    />
-  ) : null
+export default function ArtistImage({
+  image: source,
+  alt,
+  priority,
+  className,
+}: ArtistImageProps) {
+  if (!source?.asset?._ref) return null
 
-  return <>{image}</>
+  const { width, height } = getImageDimensions(source)
+  const { hotspot } = source
+
+  // Default to center if no hotspot
+  const objectPosition = hotspot
+    ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
+    : '50% 50%'
+
+  const url = urlForImage(source)?.url()
+
+  return (
+    <Image
+      src={url as string}
+      alt={stegaClean(alt) || ''}
+      width={width}
+      height={height}
+      priority={priority}
+      className={className || 'object-cover w-full h-full'}
+      style={{ objectPosition }}
+    />
+  )
 }
