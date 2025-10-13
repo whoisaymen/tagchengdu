@@ -135,7 +135,18 @@ export const aboutQuery = defineQuery(`
 export const artistQuery = defineQuery(`
   *[_type == "artist" && slug.current == $slug][0]{
     name,
-    profileImage,
+    profileImage{
+      asset->{
+        _id,
+        url,
+        metadata {
+          lqip,
+        }
+      },
+      alt,
+      hotspot,
+      crop
+    },
     bio,
     upNext,
     contact,

@@ -1,6 +1,6 @@
+'use client'
+
 import { stegaClean } from '@sanity/client/stega'
-import { getImageDimensions } from '@sanity/asset-utils'
-import { urlForImage } from '@/sanity/lib/utils'
 import Image from 'next/image'
 
 interface ArtistImageProps {
@@ -10,33 +10,45 @@ interface ArtistImageProps {
   className?: string
 }
 
-export default function ArtistImage({
-  image: source,
-  alt,
-  priority,
-  className,
-}: ArtistImageProps) {
-  if (!source?.asset?._ref) return null
-
-  const { width, height } = getImageDimensions(source)
+export default function ArtistImage(props: ArtistImageProps) {
+  const { image: source, alt, priority, className } = props
   const { hotspot } = source
 
-  // Default to center if no hotspot
+  console.log('ArtistImage hostpost:', hotspot)
+
+  // Simple hotspot application - Sanity hotspot should work directly
   const objectPosition = hotspot
     ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
     : '50% 50%'
 
-  const url = urlForImage(source)?.url()
+  const blurDataURL = source?.asset?.metadata?.lqip
+  const imageUrl = source?.asset?.url
+
+  if (!imageUrl) {
+    return (
+      <div
+        className={`relative w-full h-full ${className} bg-gray-200 flex items-center justify-center`}
+      >
+        <span className='text-sm text-gray-500'>Image not available</span>
+      </div>
+    )
+  }
 
   return (
-    <Image
-      src={url as string}
-      alt={stegaClean(alt) || ''}
-      width={width}
-      height={height}
-      priority={priority}
-      className={className || 'object-cover w-full h-full'}
-      style={{ objectPosition }}
-    />
+    <div className={`relative w-full h-full ${className}`}>
+      <Image
+        src={imageUrl}
+        alt={stegaClean(alt) || ''}
+        fill
+        priority={priority}
+        placeholder={blurDataURL ? 'blur' : 'empty'}
+        blurDataURL={blurDataURL}
+        sizes='(max-width: 768px) 100vw, 50vw'
+        className='object-cover'
+        style={{
+          objectPosition,
+        }}
+      />
+    </div>
   )
 }

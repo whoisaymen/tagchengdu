@@ -951,21 +951,20 @@ export type AboutQueryResult = {
   description: LocaleBlockContent;
 } | null;
 // Variable: artistQuery
-// Query: *[_type == "artist" && slug.current == $slug][0]{    name,    profileImage,    bio,    upNext,    contact,    socialLinks[]{      platform,      url    },    instagram,    soundcloud,    raLink,    musicLink,    customSVG  }
+// Query: *[_type == "artist" && slug.current == $slug][0]{    name,    profileImage{      asset->{        _id,        url,        metadata {          lqip,        }      },      alt,      hotspot,      crop    },    bio,    upNext,    contact,    socialLinks[]{      platform,      url    },    instagram,    soundcloud,    raLink,    musicLink,    customSVG  }
 export type ArtistQueryResult = {
   name: string;
   profileImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: LocaleString;
-    _type: "image";
+    asset: {
+      _id: string;
+      url: string | null;
+      metadata: {
+        lqip: string | null;
+      } | null;
+    } | null;
+    alt: LocaleString | null;
+    hotspot: SanityImageHotspot | null;
+    crop: SanityImageCrop | null;
   };
   bio: LocaleBlockContent;
   upNext: null;
@@ -1010,7 +1009,7 @@ declare module "@sanity/client" {
     "\n  *[_type == \"page\" && defined(slug.current)]\n  {\"slug\": slug.current}\n": PagesSlugsResult;
     "\n  *[_type == \"artist\" && defined(slug.current)]\n  {\n    \"slug\": slug.current,\n    \"name\": name\n  }\n": ArtistsSlugsResult;
     "\n  *[_type == \"about\"][0]{\n    description\n  }\n": AboutQueryResult;
-    "\n  *[_type == \"artist\" && slug.current == $slug][0]{\n    name,\n    profileImage,\n    bio,\n    upNext,\n    contact,\n    socialLinks[]{\n      platform,\n      url\n    },\n    instagram,\n    soundcloud,\n    raLink,\n    musicLink,\n    customSVG\n  }\n": ArtistQueryResult;
+    "\n  *[_type == \"artist\" && slug.current == $slug][0]{\n    name,\n    profileImage{\n      asset->{\n        _id,\n        url,\n        metadata {\n          lqip,\n        }\n      },\n      alt,\n      hotspot,\n      crop\n    },\n    bio,\n    upNext,\n    contact,\n    socialLinks[]{\n      platform,\n      url\n    },\n    instagram,\n    soundcloud,\n    raLink,\n    musicLink,\n    customSVG\n  }\n": ArtistQueryResult;
     "\n  *[_type == \"event\"] | order(date asc) {\n    _id,\n    title,\n    date,\n    description,\n    tagLineup,\n    hiddenBarLineup\n  }\n": EventsQueryResult;
   }
 }
