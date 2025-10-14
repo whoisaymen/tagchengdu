@@ -193,7 +193,7 @@ export default async function ArtistPage(props: Props) {
         <div className='w-full h-[50svh] lg:h-full relative'>
           <SwirlArtistPage
             theme={{ fill: '#05161F' }}
-            className='w-[80%] lg:w-[40vw] saturate-0'
+            className='w-[80%] lg:w-[40vw] saturate-0 z-20'
             animate={{
               rotate: [0, 360],
             }}

@@ -70,25 +70,6 @@ export default function ArtistContent({ artist, locale }: ArtistContentProps) {
           >
             Close
           </span>
-          // <button
-          //   onClick={() => setShowUpNext(false)}
-          //   className='absolute top-4 right-4 z-20 rounded-full w-auto h-auto px-2 py-0.5 flex items-center justify-center hover:bg-[#05161F] hover:text-[#E9EDB9] transition-colors bg-[#E9EDB9] text-[#05161F] shadow-[2px_2px_4px_rgba(0,0,0,0.3),-1px_-1px_3px_rgba(255,255,255,0.4)] hover:shadow-[inset_1px_1px_3px_rgba(0,0,0,0.3)]'
-          //   aria-label='Close Up Next'
-          // >
-          //   <svg
-          //     className='w-4 h-4'
-          //     fill='none'
-          //     stroke='currentColor'
-          //     viewBox='0 0 24 24'
-          //   >
-          //     <path
-          //       strokeLinecap='round'
-          //       strokeLinejoin='round'
-          //       strokeWidth={3}
-          //       d='M6 18L18 6M6 6l12 12'
-          //     />
-          //   </svg>
-          // </button>
         )}
 
         {/* Bottom fade */}
