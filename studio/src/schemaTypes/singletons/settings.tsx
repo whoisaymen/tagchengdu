@@ -14,6 +14,53 @@ export const settings = defineType({
   type: 'document',
   icon: CogIcon,
   fields: [
+    // in settings schema (singleton)
+    defineField({
+      name: 'spaces',
+      title: 'Spaces / Rooms 场地空间',
+      type: 'array',
+      description: 'Define the club spaces once (downstairs, upstairs, garden).',
+      of: [
+        defineField({
+          name: 'space',
+          title: 'Space',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'key',
+              title: 'Key',
+              type: 'string',
+              description: 'Stable id (downstairs, upstairs, garden)',
+              validation: (Rule) => Rule.required().regex(/^[a-z0-9_-]+$/, {name: 'slug-like'}),
+            }),
+            defineField({
+              name: 'nameCn',
+              title: 'Name (CN)',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'nameEn',
+              title: 'Name (EN)',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'orderIndex',
+              title: 'Order',
+              type: 'number',
+              initialValue: 0,
+            }),
+          ],
+          preview: {
+            select: {cn: 'nameCn', en: 'nameEn', key: 'key'},
+            prepare({cn, en, key}) {
+              return {title: `${en} / ${cn}`, subtitle: `key: ${key}`}
+            },
+          },
+        }),
+      ],
+    }),
     defineField({
       name: 'title',
       description: 'This field is the title of your blog.',

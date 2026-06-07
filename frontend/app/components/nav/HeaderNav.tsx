@@ -1,9 +1,23 @@
 'use client'
 
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import LanguageToggle from './LanguageToggle'
+import { SITE_TITLE } from '@/app/lib/siteMetadata'
+
+const logoMaskStyle: CSSProperties = {
+  aspectRatio: '1212.4459 / 647.016',
+  WebkitMaskImage: 'url(/images/t2-logo.svg)',
+  WebkitMaskRepeat: 'no-repeat',
+  WebkitMaskPosition: 'center',
+  WebkitMaskSize: 'contain',
+  maskImage: 'url(/images/t2-logo.svg)',
+  maskRepeat: 'no-repeat',
+  maskPosition: 'center',
+  maskSize: 'contain',
+}
 
 export default function HeaderNav() {
   const t = useTranslations('navigation')
@@ -27,42 +41,38 @@ export default function HeaderNav() {
 
   return (
     <nav className='flex justify-between items-center w-full relative'>
-      <div className='flex items-center lg:gap-x-4 gap-x-2 w-full justify-between lg:w-auto lg:justify-start leading-[1.15]'>
+      <div className='flex items-center gap-x-2 max-[400px]:gap-x-1 min-[900px]:gap-x-4 w-full justify-between min-[900px]:w-auto min-[900px]:justify-start leading-[1.15]'>
         <LanguageToggle />
         {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
             className={`
-              px-[0.5rem] lg:px-3 rounded-full
+              px-[0.5rem] max-[400px]:px-[0.375rem] md:px-[0.625rem] lg:px-3 rounded-full
               transition-all duration-200
-              relative
+              relative isolate overflow-hidden
               ${
                 pathname.startsWith(link.match)
-                  ? 'bg-[#05161F] text-[#E9EDB9] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.6),inset_-1px_-1px_3px_rgba(255,255,255,0.1)] [mix-blend-mode:difference]'
-                  : 'bg-[#E9EDB9] text-[#05161F] shadow-[2px_2px_4px_rgba(0,0,0,0.3),-1px_-1px_3px_rgba(255,255,255,0.4)] hover:shadow-[inset_1px_1px_3px_rgba(0,0,0,0.3)]'
+                  ? 'nav-dynamic-pill text-[var(--site-paper)] [text-shadow:0_1px_2px_rgba(5,22,31,0.5)]'
+                  : 'bg-[var(--site-paper)] text-[var(--site-ink)] shadow-[2px_2px_4px_rgba(0,0,0,0.3),-1px_-1px_3px_rgba(255,255,255,0.4)] hover:bg-[var(--site-paper)] hover:text-[var(--site-ink)] hover:shadow-[inset_2px_2px_4px_rgba(5,22,31,0.34),inset_-1px_-1px_3px_rgba(255,255,255,0.45),0_0_12px_rgba(233,237,185,0.34)]'
               }
             `}
           >
-            {link.label}
+            <span className='relative z-10'>{link.label}</span>
           </Link>
         ))}
       </div>
       {pathname.startsWith(`/${locale}/shop`) ? null : (
         <Link
           href={`/${locale}`}
-          className='w-10 lg:w-16 fixed bottom-4 left-1/2 -translate-x-1/2 lg:static lg:left-auto lg:translate-x-0'
+          aria-label={`${SITE_TITLE} home`}
+          className='fixed bottom-4 left-1/2 -translate-x-1/2 min-[900px]:static min-[900px]:left-auto min-[900px]:translate-x-0 inline-flex items-center justify-center leading-none text-[1.65rem] text-[var(--site-paper)] transition-[color,filter] duration-200 hover:text-[var(--site-paper)] hover:drop-shadow-[0_0_8px_rgba(233,237,185,0.72)] focus-visible:text-[var(--site-paper)] focus-visible:drop-shadow-[0_0_8px_rgba(233,237,185,0.72)] focus-visible:outline-none min-[900px]:text-[2.5rem]'
         >
-          <svg
-            viewBox='0 0 572 255'
-            fill='none'
-            xmlns='http://www.w3.org/2000/svg'
-          >
-            <path
-              d='M319.801 3.82217C319.801 3.82217 378.501 247.922 378.901 250.522C365.301 250.522 335.701 250.222 335.701 250.222C335.701 250.222 325.201 216.822 320.901 202.222C304.501 202.222 228.501 202.322 228.501 202.322L226.501 210.522L215.601 250.222C215.601 250.222 186.101 250.522 171.901 250.522C179.401 219.922 186.701 190.422 194.001 160.922C206.201 111.822 232.501 3.82217 232.501 3.82217H319.801ZM312.101 160.522C303.001 122.422 284.101 42.9222 284.101 42.9222C284.101 42.9222 270.901 43.0222 267.401 43.0222C257.701 82.7222 248.201 121.222 238.601 160.522H312.101ZM499.801 121.922V159.022H527.901V211.922C508.301 214.722 491.601 215.122 473.601 213.722C454.001 212.222 440.501 198.822 436.201 180.322C433.101 167.022 431.001 153.222 431.001 139.622C431.001 119.522 431.801 99.2222 435.001 79.5222C438.801 56.4222 451.801 45.2222 475.901 42.4222C488.801 40.9222 502.001 41.3222 515.001 42.0222C533.401 42.9222 551.701 44.8222 571.001 46.4222V9.72217C536.801 3.12217 502.401 -2.07783 467.201 0.822174C427.901 4.12217 402.701 23.4222 392.901 60.0222C381.101 104.022 381.301 148.622 392.701 192.722C401.901 228.322 426.601 248.822 464.501 253.022C500.401 257.022 535.901 251.422 571.601 246.222V121.922H499.801ZM185.101 4.52217H0.700676V45.0222H71.2007V249.922H115.701V44.9222H185.101V4.52217ZM24.1007 204.322C10.7007 204.622 0.100676 215.122 0.000676427 228.122C-0.0993236 241.522 10.9007 252.022 24.8007 251.922C38.7007 251.822 49.7007 241.122 49.5007 227.822C49.4007 214.822 37.7007 204.022 24.1007 204.322Z'
-              fill='currentColor'
-            />
-          </svg>
+          <span
+            className='block w-8 min-[900px]:w-12 bg-current'
+            style={logoMaskStyle}
+            aria-hidden='true'
+          />
         </Link>
       )}
     </nav>

@@ -47,10 +47,45 @@ export const artist = defineType({
       ],
     }),
     defineField({
+      name: 'country',
+      title: 'Country / 国籍',
+      type: 'string',
+      description: 'e.g. DE, Germany, China, CN',
+      validation: (Rule) => Rule.max(32),
+    }),
+    defineField({
+      name: 'profileTheme',
+      title: 'Profile Theme / 艺人页面主题',
+      type: 'string',
+      description:
+        'Optional. Leave empty to rotate automatically by artist index. Custom SVG titles should use --artist-title-main and --artist-title-gradient CSS variables.',
+      options: {
+        list: [
+          {title: 'Auto by artist index', value: 'auto'},
+          {title: 'Acid Green', value: 'acid'},
+          {title: 'Hot Red', value: 'hot'},
+          {title: 'Night Blue', value: 'night'},
+        ],
+        layout: 'radio',
+      },
+    }),
+    defineField({
       name: 'bio',
       title: '简介 Bio',
       type: 'localeBlockContent', // <-- localized rich text
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'set',
+      title: 'Set SoundCloud URL',
+      type: 'url',
+      description: 'Paste the SoundCloud set or playlist URL for the inline artist player.',
+      validation: (rule) =>
+        rule
+          .uri({scheme: ['https']})
+          .custom((value) =>
+            !value || String(value).includes('soundcloud.com') ? true : 'Use a SoundCloud set URL.',
+          ),
     }),
     // defineField({
     //   name: 'instagram',

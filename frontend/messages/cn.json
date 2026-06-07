@@ -5,6 +5,9 @@
     "artists": "Artists",
     "shop": "Shop"
   },
+  "events": {
+    "emptyMonth": "本月暂无活动。"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error occurred"

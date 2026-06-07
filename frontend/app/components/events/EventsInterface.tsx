@@ -193,7 +193,7 @@ type Props = {
 function getHasNext(
   eventsByMonth: EventsByMonth,
   currentMonth: number,
-  currentYear: number
+  currentYear: number,
 ) {
   let y = currentYear
   let m = currentMonth + 1
@@ -211,7 +211,7 @@ function getHasNext(
 function getHasPrev(
   eventsByMonth: EventsByMonth,
   currentMonth: number,
-  currentYear: number
+  currentYear: number,
 ) {
   let y = currentYear
   let m = currentMonth - 1
@@ -229,7 +229,7 @@ function getHasPrev(
 function getNextMonth(
   eventsByMonth: EventsByMonth,
   currentMonth: number,
-  currentYear: number
+  currentYear: number,
 ) {
   let y = currentYear
   let m = currentMonth + 1
@@ -247,7 +247,7 @@ function getNextMonth(
 function getPrevMonth(
   eventsByMonth: EventsByMonth,
   currentMonth: number,
-  currentYear: number
+  currentYear: number,
 ) {
   let y = currentYear
   let m = currentMonth - 1
@@ -285,31 +285,43 @@ export default function EventsInterface({
   const hasNext = getHasNext(eventsByMonth, currentMonth, currentYear)
 
   return (
-    <div className='fixed w-full bottom-0 h-auto lg:h-[20vh] flex items-end justify-center pointer-events-none'>
-      <div className='w-full h-full mx-auto px-4 pointer-events-auto font-[family-name:var(--font-kleber)] h-auto py-8 pt-11 relative bg-[#05161F]'>
-        <div className='text-7xl md:text-9xl bg-gradient-to-b from-[#B25403] to-[#B3C200] bg-clip-text text-center text-transparent leading-none flex items-end justify-between md:items-center'>
+    <div className='fixed bottom-0 z-30 flex h-auto w-full items-end justify-center pointer-events-none lg:h-[20vh]'>
+      <div className='w-full h-full mx-auto px-4 pointer-events-auto font-[family-name:var(--font-kleber)] h-auto py-8 pt-11 relative bg-[var(--site-ink)]'>
+        <div className='text-7xl md:text-9xl text-center leading-none flex items-end justify-between lg:items-center'>
           {/* LEFT ARROW */}
           {hasPrev ? (
             <button
               onClick={() => handleNavigate('prev')}
-              className='hover:scale-110'
+              className='h-[4.5rem] w-[3.4rem] transition-transform hover:scale-105 lg:h-32 lg:w-24'
               aria-label='Previous month'
             >
               <ArrowRight
-                theme={{ fill: '#B3C200' }}
-                className='w-12 h-20 -rotate-180'
+                theme={{ gradient: 'month-arrow' }}
+                className='h-full w-full -rotate-180'
               />
             </button>
           ) : (
-            <div className='w-12 h-20' />
+            <div className='h-[4.5rem] w-[3.4rem] lg:h-32 lg:w-24' />
           )}
 
           {/* MONTH/YEAR DISPLAY */}
           <div className='flex flex-col lg:flex-row lg:items-center lg:justify-center lg:gap-4'>
-            <div className='text-[4.5rem] lg:text-9xl bg-gradient-to-b from-[#D90000] via-[#B3C200] to-[#D90000] bg-clip-text text-transparent leading-[1]'>
+            <div
+              className='text-[4.5rem] lg:text-9xl bg-clip-text text-transparent leading-[1]'
+              style={{
+                backgroundImage:
+                  'linear-gradient(180deg, var(--site-accent) 0%, var(--site-accent) 34%, var(--site-accent-hot) 100%)',
+              }}
+            >
               {months[currentMonth]}
             </div>
-            <div className='text-[4.5rem] lg:text-9xl bg-gradient-to-b from-[#D90000] via-[#B3C200] to-[#D90000] bg-clip-text text-transparent leading-[1] -mt-4 lg:mt-0'>
+            <div
+              className='text-[4.5rem] lg:text-9xl bg-clip-text text-transparent leading-[1] -mt-4 lg:mt-0'
+              style={{
+                backgroundImage:
+                  'linear-gradient(180deg, var(--site-accent) 0%, var(--site-accent) 34%, var(--site-accent-hot) 100%)',
+              }}
+            >
               {currentYear}
             </div>
           </div>
@@ -318,17 +330,26 @@ export default function EventsInterface({
           {hasNext ? (
             <button
               onClick={() => handleNavigate('next')}
-              className='hover:scale-110'
+              className='h-[4.5rem] w-[3.4rem] transition-transform hover:scale-105 lg:h-32 lg:w-24'
               aria-label='Next month'
             >
-              <ArrowRight theme={{ fill: '#B3C200' }} className='w-12 h-20' />
+              <ArrowRight
+                theme={{ gradient: 'month-arrow' }}
+                className='h-full w-full'
+              />
             </button>
           ) : (
-            <div className='w-12 h-20' />
+            <div className='h-[4.5rem] w-[3.4rem] lg:h-32 lg:w-24' />
           )}
         </div>
 
-        <div className='pointer-events-none absolute -top-8.5 left-0 right-0 h-[20%] bg-gradient-to-t from-[#05161F] to-transparent' />
+        <div
+          className='pointer-events-none absolute -top-24 left-0 right-0 h-24 lg:-top-32 lg:h-32'
+          style={{
+            background:
+              'linear-gradient(to top, #05161f 0%, rgba(5, 22, 31, 0.995) 8%, rgba(5, 22, 31, 0.96) 18%, rgba(5, 22, 31, 0.88) 30%, rgba(5, 22, 31, 0.76) 43%, rgba(5, 22, 31, 0.6) 56%, rgba(5, 22, 31, 0.42) 69%, rgba(5, 22, 31, 0.23) 83%, rgba(5, 22, 31, 0) 100%)',
+          }}
+        />
       </div>
     </div>
   )

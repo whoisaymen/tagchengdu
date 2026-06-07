@@ -1,7 +1,7 @@
 import './globals.css'
 
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { draftMode } from 'next/headers'
 import { VisualEditing, toPlainText } from 'next-sanity'
 import { Toaster } from 'sonner'
@@ -17,13 +17,20 @@ import { handleError } from '../client-utils'
 import { NextIntlClientProvider, hasLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
+import { getSiteTitle } from '@/app/lib/siteMetadata'
 
 // Fonts
 import localFont from 'next/font/local'
+import { Noto_Serif_SC } from 'next/font/google'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import AnimatedBackground from '../components/global/AnimatedBackground'
 import AnimatedSwirl from '../components/global/AnimatedSwirl'
+
+export const viewport: Viewport = {
+  themeColor: '#7a3e09',
+  colorScheme: 'dark',
+}
 
 /**
  * Generate metadata for the page.
@@ -35,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
     // Metadata should never contain stega
     stega: false,
   })
-  const title = settings?.title || demo.title
+  const title = getSiteTitle(settings?.title || demo.title)
   const description = settings?.description || demo.description
 
   const ogImage = resolveOpenGraphImage(settings?.ogImage)
@@ -66,6 +73,25 @@ const kleber = localFont({
   variable: '--font-kleber',
 })
 
+const honeymoon = localFont({
+  src: '../../public/fonts/ABCHoneymoon-Regular-Trial.woff2',
+  display: 'swap',
+  variable: '--font-honeymoon',
+})
+
+const playground = localFont({
+  src: '../../public/fonts/PPPlayground-Regular.woff2',
+  display: 'swap',
+  variable: '--font-playground',
+})
+
+const songti = Noto_Serif_SC({
+  weight: ['700'],
+  display: 'swap',
+  preload: false,
+  variable: '--font-songti-sc',
+})
+
 export default async function LocaleLayout({
   children,
   params,
@@ -82,7 +108,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${GeistSans.variable} ${GeistMono.variable} ${kleber.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${kleber.variable} ${honeymoon.variable} ${playground.variable} ${songti.variable}`}
     >
       <body>
         <NextIntlClientProvider>
@@ -113,12 +139,9 @@ export default async function LocaleLayout({
     pointer-events-none
     fixed inset-0 z-30
     mix-blend-screen
-    opacity-25
+    site-overlay-scrim
    '
-            style={{
-              background: 'linear-gradient(120deg, #05161F 0%, #05161F 100%)',
-              filter: 'hue-rotate(-10deg) blur(0px)',
-            }}
+            style={{ filter: 'blur(0px)' }}
           >
             {/* <div
               style={{
@@ -132,7 +155,6 @@ export default async function LocaleLayout({
               }}
             /> */}
           </div>
-
           <SpeedInsights />
         </NextIntlClientProvider>
       </body>

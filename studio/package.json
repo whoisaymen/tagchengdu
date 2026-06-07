@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "sanity dev",
     "start": "sanity start",
+    "seed-shop": "sanity exec ./scripts/seedShopProducts.ts --with-user-token",
     "prebuild": "npm run extract-types",
     "build": "sanity build",
     "deploy": "sanity deploy",

@@ -3,26 +3,118 @@
 import { useState } from 'react'
 import { PortableText } from '@portabletext/react'
 import ArrowRight from '@/app/components/svg/ArrowRight'
+import RichTextStrong from '@/app/components/rich-text/RichTextStrong'
 import { FiInstagram } from 'react-icons/fi'
 import { FaSoundcloud } from 'react-icons/fa'
 import { IoIosMusicalNotes } from 'react-icons/io'
 
 type ArtistContentProps = {
   artist: {
+    name?: string
     bio?: { [key: string]: any }
+    set?: string | null
     upNext?: string
     contact?: string
-    socialLinks?: { platform: string; url: string }[]
+    socialLinks?: { platform?: string | null; url?: string | null }[]
   }
   locale: string
 }
 
+function getPlatformKey(link: {
+  platform?: string | null
+  url?: string | null
+}) {
+  const platform = (link.platform || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+  const url = (link.url || '').toLowerCase()
+
+  if (platform.includes('instagram') || url.includes('instagram.com')) {
+    return 'instagram'
+  }
+
+  if (platform.includes('soundcloud') || url.includes('soundcloud.com')) {
+    return 'soundcloud'
+  }
+
+  if (
+    platform.includes('residentadvisor') ||
+    platform === 'ra' ||
+    url.includes('ra.co') ||
+    url.includes('residentadvisor.net')
+  ) {
+    return 'residentadvisor'
+  }
+
+  if (platform.includes('mixcloud') || url.includes('mixcloud.com')) {
+    return 'mixcloud'
+  }
+
+  if (
+    platform.includes('applemusic') ||
+    platform.includes('itunes') ||
+    url.includes('music.apple.com')
+  ) {
+    return 'applemusic'
+  }
+
+  if (platform.includes('bandcamp') || url.includes('bandcamp.com')) {
+    return 'bandcamp'
+  }
+
+  return 'other'
+}
+
+function normalizeLinkUrl(url?: string | null) {
+  return (url || '').trim().toLowerCase().replace(/\/+$/, '')
+}
+
+const platformLabels: Record<string, string> = {
+  instagram: 'Instagram',
+  soundcloud: 'SoundCloud',
+  residentadvisor: 'Resident Advisor',
+  mixcloud: 'Mixcloud',
+  applemusic: 'Apple Music',
+  bandcamp: 'Bandcamp',
+  other: 'Link',
+}
+
 export default function ArtistContent({ artist, locale }: ArtistContentProps) {
   const [showUpNext, setShowUpNext] = useState(false)
+  const bookingSubject = encodeURIComponent(
+    `Booking enquiry for ${artist.name || 'Artist'}`,
+  )
+  const bookingEmail = artist.contact?.replace(/^mailto:/i, '').trim()
+  const bookingHref = bookingEmail
+    ? `mailto:${bookingEmail}?subject=${bookingSubject}`
+    : undefined
+  const seenSocialLinks = new Set<string>()
+  const uniqueSocialLinks: {
+    platform?: string | null
+    url: string
+  }[] = []
+
+  for (const link of artist.socialLinks || []) {
+    if (!link?.url) {
+      continue
+    }
+
+    const platformKey = getPlatformKey(link)
+    const normalizedUrl = normalizeLinkUrl(link.url)
+    const dedupeKey = `${platformKey}:${normalizedUrl}`
+
+    if (seenSocialLinks.has(dedupeKey)) {
+      continue
+    }
+
+    seenSocialLinks.add(dedupeKey)
+    uniqueSocialLinks.push({
+      platform: link.platform,
+      url: link.url,
+    })
+  }
   const platformIcons: Record<string, React.ReactNode> = {
     instagram: <FiInstagram />,
     soundcloud: (
-      <FaSoundcloud className='bg-[#05161F] rounded-full text-[#B3C200] p-1' />
+      <FaSoundcloud className='bg-[var(--artist-text)] rounded-full text-[var(--artist-panel)] p-1' />
     ),
     residentadvisor: (
       <svg className='w-6 h-auto' viewBox='0 0 83 40' aria-label='RA logo'>
@@ -55,28 +147,30 @@ export default function ArtistContent({ artist, locale }: ArtistContentProps) {
       </svg>
     ),
     other: (
-      <IoIosMusicalNotes className='bg-[#05161F] rounded-md text-[#B3C200] p-1' />
+      <IoIosMusicalNotes className='bg-[var(--artist-text)] rounded-md text-[var(--artist-panel)] p-1' />
     ),
   }
   return (
     <>
       {/* Biography/Up Next Section */}
-      <div className='flex-1 text-[#05161F] font-[family-name:var(--font-geist-sans)] flex flex-col relative tracking-tighter lg:pt-16 overflow-hidden'>
+      <div
+        className='flex-1 text-[var(--artist-text)] font-[family-name:var(--font-geist-sans)] flex flex-col relative tracking-tighter overflow-hidden lg:pt-16'
+      >
         {/* Close button for Up Next - only shows when Up Next is open */}
         {showUpNext && (
           <span
             onClick={() => setShowUpNext(false)}
-            className='font-[family-name:var(--font-kleber)] absolute top-4 right-4 z-20 uppercase tracking-normal text-[1.2rem] leading-[1.15] bg-[#E9EDB9] px-[0.5rem] lg:px-3 rounded-full text-[#05161F] lg:text-4xl z-10'
+            className='font-[family-name:var(--font-kleber)] absolute top-4 right-4 z-20 cursor-pointer uppercase tracking-normal text-[1.2rem] leading-[1.15] bg-[var(--site-paper)] px-[0.5rem] lg:px-3 rounded-full text-[var(--site-ink)] lg:hidden'
           >
             Close
           </span>
         )}
 
         {/* Bottom fade */}
-        <div className='pointer-events-none absolute left-0 right-0 bottom-0 h-24 bg-gradient-to-t from-[#B3C200] via-[#B3C200]/80 to-transparent z-10' />
+        <div className='pointer-events-none absolute left-0 right-0 bottom-0 h-24 bg-gradient-to-t from-[var(--artist-panel)] to-transparent z-10' />
 
         {/* Scrollable content */}
-        <div className='overflow-y-scroll h-full px-4 pb-12 space-y-8 mt-4 scrollbar scrollbar-thumb-[#B3C200] scrollbar-track-[#B3C200]'>
+        <div className='overflow-y-scroll h-full px-4 pb-12 space-y-8 mt-4 scrollbar scrollbar-thumb-[var(--artist-scrollbar)] scrollbar-track-[var(--artist-panel)]'>
           {showUpNext ? (
             // Up Next Content
             <div className='space-y-6'>
@@ -89,41 +183,39 @@ export default function ArtistContent({ artist, locale }: ArtistContentProps) {
             </div>
           ) : (
             // Biography Content
-            <PortableText
-              value={artist.bio?.[locale] || artist.bio?.en || []}
-              components={{
-                marks: {
-                  strong: ({ children }) => (
-                    <span className='font-[family-name:var(--font-kleber)] tracking-normal text-[1.12rem] lg:text-[2.35rem] leading-[1.15]'>
-                      {children}
-                    </span>
-                  ),
-                },
-                block: {
-                  normal: ({ children }) => (
-                    <p className='text-base lg:text-2xl leading-tight'>
-                      {children}
-                    </p>
-                  ),
-                },
-              }}
-            />
+            <div>
+              <PortableText
+                value={artist.bio?.[locale] || artist.bio?.en || []}
+                components={{
+                  marks: {
+                    strong: RichTextStrong,
+                  },
+                  block: {
+                    normal: ({ children }) => (
+                      <p className='mb-6 text-base leading-tight last:mb-0 lg:text-2xl'>
+                        {children}
+                      </p>
+                    ),
+                  },
+                }}
+              />
+            </div>
           )}
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className='flex-shrink-0 w-full text-center bg-[#B3C200] text-[#05161F] flex flex-col justify-end uppercase font-[family-name:var(--font-geist-sans)] tracking-tighter text-xl lg:text-3xl pb-0 lg:pb-2'>
-        <div className='flex justify-between w-full px-1 pr-3 mb-1 lg:mb-4'>
+      <div className='flex-shrink-0 w-full text-center bg-[var(--artist-panel)] text-[var(--artist-text)] flex flex-col justify-end uppercase font-[family-name:var(--font-geist-sans)] tracking-tighter text-xl lg:text-3xl pb-0'>
+        <div className='flex justify-between w-full px-2 mb-1 lg:mb-2'>
           {/* Up Next Button */}
           <div className='flex items-center gap-x-0 lg:gap-x-1'>
             <ArrowRight
-              theme={{ fill: '#05161F' }}
+              theme={{ fill: 'var(--artist-text)' }}
               className={`w-6 h-auto lg:w-9 ${showUpNext ? '-rotate-90' : ''}`}
             />
             <button
               onClick={() => setShowUpNext(!showUpNext)}
-              className={`uppercase hover:underline`}
+              className='cursor-pointer uppercase hover:underline'
             >
               Up next
             </button>
@@ -133,29 +225,33 @@ export default function ArtistContent({ artist, locale }: ArtistContentProps) {
           {/* Contact */}
           <div className='flex items-center gap-x-0 lg:gap-x-1'>
             <ArrowRight
-              theme={{ fill: '#05161F' }}
+              theme={{ fill: 'var(--artist-text)' }}
               className='w-6 h-auto lg:w-9'
             />
-            {artist.contact ? (
-              <a href={`mailto:${artist.contact}`} className='hover:underline'>
+            {bookingHref ? (
+              <a href={bookingHref} className='hover:underline'>
                 Contact
               </a>
             ) : null}
           </div>
 
           <div className='flex items-center gap-x-0.5'>
-            {artist.socialLinks?.map((link, index) => (
-              <a
-                key={index}
-                href={link.url}
-                target='_blank'
-                rel='noopener noreferrer'
-                aria-label={link.platform}
-                className='flex items-center'
-              >
-                {platformIcons[link.platform] || platformIcons.other}
-              </a>
-            ))}
+            {uniqueSocialLinks.map((link, index) => {
+              const platformKey = getPlatformKey(link)
+
+              return (
+                <a
+                  key={`${platformKey}-${link.url}-${index}`}
+                  href={link.url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  aria-label={platformLabels[platformKey]}
+                  className='flex items-center'
+                >
+                  {platformIcons[platformKey] || platformIcons.other}
+                </a>
+              )
+            })}
           </div>
         </div>
       </div>

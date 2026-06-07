@@ -108,7 +108,8 @@ export const artistsSlugs = defineQuery(`
   *[_type == "artist" && defined(slug.current)]
   {
     "slug": slug.current,
-    "name": name
+    "name": name,
+    profileTheme
   }
 `)
 
@@ -149,6 +150,7 @@ export const artistQuery = defineQuery(`
     },
     bio,
     upNext,
+    set,
     contact,
     socialLinks[]{
       platform,
@@ -158,17 +160,103 @@ export const artistQuery = defineQuery(`
     soundcloud,
     raLink,
     musicLink,
+    profileTheme,
     customSVG
   }
 `)
 
+const shopImageFields = /* groq */ `
+  asset->{
+    _id,
+    url,
+    metadata {
+      lqip,
+    }
+  },
+  alt,
+  hotspot,
+  crop
+`
+
+const shopVariantFields = /* groq */ `
+  _key,
+  slug,
+  name,
+  price,
+  labelColor,
+  isDefault,
+  listingImage{
+    ${shopImageFields}
+  },
+  heroImage{
+    ${shopImageFields}
+  }
+`
+
+const shopProductFields = /* groq */ `
+  _id,
+  name,
+  customSVG,
+  "slug": slug.current,
+  orderIndex,
+  price,
+  listingImage{
+    ${shopImageFields}
+  },
+  heroImage{
+    ${shopImageFields}
+  },
+  description,
+  variants[]{
+    ${shopVariantFields}
+  }
+`
+
+export const shopProductsQuery = defineQuery(`
+  *[_type == "shopProduct"] | order(orderIndex asc, _createdAt asc) {
+    ${shopProductFields}
+  }
+`)
+
+export const shopProductQuery = defineQuery(`
+  *[_type == "shopProduct" && slug.current == $slug][0] {
+    ${shopProductFields}
+  }
+`)
+
+export const shopProductSlugs = defineQuery(`
+  *[_type == "shopProduct" && defined(slug.current)] {
+    "slug": slug.current
+  }
+`)
+
 export const eventsQuery = defineQuery(`
-  *[_type == "event"] | order(date asc) {
+  *[_type == "event"] | order(coalesce(doorsAt, date) asc) {
     _id,
     title,
     date,
+    doorsAt,
+    startsAt,
     description,
+    poster{
+      asset->{
+        url
+      }
+    },
     tagLineup,
-    hiddenBarLineup
+    hiddenBarLineup,
+    lineups[]{
+      room->{
+        nameEn,
+        nameCn
+      },
+      entries[]{
+        type,
+        name,
+        artist->{
+          name
+        }
+      }
+    }
   }
 `)

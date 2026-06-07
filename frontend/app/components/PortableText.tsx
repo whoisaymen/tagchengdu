@@ -15,6 +15,7 @@ import {
 } from "next-sanity";
 
 import ResolvedLink from "@/app/components/ResolvedLink";
+import RichTextStrong from "@/app/components/rich-text/RichTextStrong";
 
 export default function CustomPortableText({
   className,
@@ -79,6 +80,7 @@ export default function CustomPortableText({
       },
     },
     marks: {
+      strong: RichTextStrong,
       link: ({ children, value: link }) => {
         return <ResolvedLink link={link}>{children}</ResolvedLink>;
       },

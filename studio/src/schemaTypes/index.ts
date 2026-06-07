@@ -1,36 +1,52 @@
 import {person} from './documents/person'
 import {page} from './documents/page'
 import {post} from './documents/post'
+import about from './documents/about'
+import event from './documents/event'
+import {artist} from './documents/artist'
+import {shopProduct} from './documents/shopProduct'
+import consentClause from './documents/consentClause'
+import consentDocument from './documents/consentDocument'
+import {room} from './documents/room'
+
+import {settings} from './singletons/settings'
+
 import {callToAction} from './objects/callToAction'
 import {infoSection} from './objects/infoSection'
-import {settings} from './singletons/settings'
 import {link} from './objects/link'
 import {blockContent} from './objects/blockContent'
-import {artist} from './documents/artist'
 import localeBlockContent from './objects/localeBlockContent'
 import localeString from './objects/localeString'
-import event from './documents/event'
-import lineup from './documents/lineup'
-import about from './documents/about'
 
-// Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
+// NEW (simplified lineup system)
+import {lineupEntry} from './objects/lineupEntry'
+import {roomLineup} from './objects/roomLineup'
 
 export const schemaTypes = [
   // Singletons
   settings,
+
   // Documents
   page,
   post,
   person,
+  about,
+  artist,
+  shopProduct,
+  room,
+  event,
+  consentClause,
+  consentDocument,
+
   // Objects
   blockContent,
+  localeBlockContent,
+  localeString,
   infoSection,
   callToAction,
   link,
-  artist,
-  event,
-  localeBlockContent,
-  localeString,
-  lineup,
-  about,
+
+  // Event lineup objects
+  lineupEntry,
+  roomLineup,
 ]

@@ -27,6 +27,14 @@ import { useMemo } from 'react'
 import Loading from './loading'
 import SwirlArtistPage from '@/app/components/svg/SwirlArtistPage'
 import ArtistContent from '@/app/components/artists/ArtistContent'
+import ArtistSetPlayer from '@/app/components/artists/ArtistSetPlayer'
+import { SITE_TITLE } from '@/app/lib/siteMetadata'
+import {
+  getArtistProfileThemeStyle,
+  getSortedArtistIndex,
+  normalizeArtistTitleSvg,
+  resolveArtistProfileTheme,
+} from '@/app/components/artists/artistProfileThemes'
 
 type Props = {
   params: Promise<{ slug: string; locale: string }>
@@ -41,6 +49,7 @@ type ArtistData = {
   }
   bio?: { [key: string]: any } // localeBlockContent
   gigs?: any[]
+  set?: string
   contact?: string // plain string
   socialLinks?: any[]
   mediaFile?: any
@@ -49,6 +58,7 @@ type ArtistData = {
   soundcloud?: string
   raLink?: string
   musicLink?: string
+  profileTheme?: string | null
   customSVG?: string
 }
 
@@ -69,7 +79,7 @@ export async function generateStaticParams() {
       locales.map((locale) => ({
         slug: item.slug,
         locale,
-      }))
+      })),
     ) || []
   )
 }
@@ -96,7 +106,7 @@ export async function generateMetadata({
   }
 
   // Extract description from bio if available
-  let description = 'Artist at TAG Chengdu'
+  let description = `Artist at ${SITE_TITLE}`
   const bioContent = artist.bio?.[locale] || artist.bio?.en
   if (bioContent) {
     if (typeof bioContent === 'string') {
@@ -107,7 +117,7 @@ export async function generateMetadata({
         .filter((block) => block._type === 'block')
         .map(
           (block) =>
-            block.children?.map((child: any) => child.text).join('') || ''
+            block.children?.map((child: any) => child.text).join('') || '',
         )
         .join(' ')
         .substring(0, 160)
@@ -115,7 +125,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${artist.name || 'Artist'} | TAG Chengdu`,
+    title: artist.name || 'Artist',
     description,
     openGraph: artist.profileImage?.asset?.url
       ? {
@@ -129,10 +139,19 @@ export default async function ArtistPage(props: Props) {
   const params = await props.params
   const locale = params.locale || 'en'
 
-  const { data: artist } = (await sanityFetch({
-    query: artistQuery,
-    params,
-  })) as { data: ArtistData | null }
+  const [{ data: artist }, { data: artists }] = (await Promise.all([
+    sanityFetch({
+      query: artistQuery,
+      params,
+    }),
+    sanityFetch({
+      query: artistsSlugs,
+      stega: false,
+    }),
+  ])) as [
+    { data: ArtistData | null },
+    { data: { slug?: string | null; name?: string | null }[] | null },
+  ]
 
   if (!artist) {
     return (
@@ -141,6 +160,20 @@ export default async function ArtistPage(props: Props) {
       </div>
     )
   }
+
+  const artistIndex = getSortedArtistIndex(artists, {
+    slug: params.slug,
+    name: artist.name,
+  })
+  const artistTheme = resolveArtistProfileTheme(
+    artist.profileTheme,
+    artistIndex,
+    params.slug,
+  )
+  const artistThemeStyle = getArtistProfileThemeStyle(artistTheme)
+  const artistCustomSvg = artist.customSVG
+    ? normalizeArtistTitleSvg(artist.customSVG)
+    : null
 
   const platformIcons: Record<string, React.ReactNode> = {
     instagram: <FiInstagram />,
@@ -188,11 +221,15 @@ export default async function ArtistPage(props: Props) {
 
   return (
     <>
-      <div className='font-[family-name:var(--font-kleber)] flex flex-col lg:flex-row relative h-full justify-between'>
+      <div
+        className='font-[family-name:var(--font-kleber)] flex flex-col lg:flex-row relative h-full justify-between'
+        data-artist-theme={artistTheme.key}
+        style={artistThemeStyle}
+      >
         {/* Left Column - Image */}
         <div className='w-full h-[50svh] lg:h-full relative'>
           <SwirlArtistPage
-            theme={{ fill: '#05161F' }}
+            theme={{ fill: 'var(--site-ink)' }}
             className='w-[80%] lg:w-[40vw] saturate-0 z-20'
             animate={{
               rotate: [0, 360],
@@ -212,32 +249,43 @@ export default async function ArtistPage(props: Props) {
               className='object-cover w-full h-full'
             />
           )}
-          <Link
-            href='/artists'
-            className='absolute bottom-4 left-4 bg-[#E9EDB9] px-[0.5rem] lg:px-3 rounded-full text-[#05161F] uppercase text-[1.2rem] lg:text-4xl leading-[1.15] z-10'
-          >
-            Back
-          </Link>
-          <div className='pointer-events-none absolute bottom-0 left-0 right-0 h-[20%] bg-gradient-to-t from-[#b25403] to-transparent lg:hidden' />
+          <div className='absolute bottom-4 left-4 z-30'>
+            <Link
+              href='/artists'
+              className='bg-[var(--site-paper)] px-[0.5rem] lg:px-3 rounded-full text-[var(--site-ink)] uppercase text-[1.2rem] lg:text-4xl leading-[1.15]'
+            >
+              Back
+            </Link>
+          </div>
+          {artist.set ? (
+            <ArtistSetPlayer
+              artistName={artist.name}
+              setUrl={artist.set}
+              viewport='desktop'
+              className='hidden lg:block lg:bottom-4 lg:right-4'
+            />
+          ) : null}
+          {artist.set ? (
+            <ArtistSetPlayer
+              artistName={artist.name}
+              setUrl={artist.set}
+              viewport='mobile'
+              className='bottom-4 right-4 lg:hidden'
+            />
+          ) : null}
+          <div className='pointer-events-none absolute bottom-0 left-0 right-0 h-[20%] bg-gradient-to-t from-[var(--artist-image-fade)] to-transparent lg:hidden' />
           <AnimatedGradient />
         </div>
 
         {/* Right Column - Content */}
-        <div className='w-full h-[50svh] lg:h-full bg-[#B3C200] flex flex-col'>
+        <div className='relative w-full h-[50svh] lg:h-full bg-[var(--artist-panel)] flex flex-col'>
           <ArtistContent artist={artist} locale={locale} />
 
           {/* Artist Title SVG */}
-          {artist.customSVG && (
+          {artistCustomSvg && (
             <div
-              className='w-full max-h-[25svh] flex justify-center items-center p-1 lg:px-2 pt-0'
-              style={
-                {
-                  aspectRatio: 'auto',
-                  '--artist-title-main': '#05161F',
-                  '--artist-title-gradient': '#B25403',
-                } as React.CSSProperties & Record<string, string>
-              }
-              dangerouslySetInnerHTML={{ __html: artist.customSVG }}
+              className='w-full max-h-[25svh] flex justify-center items-center p-3 lg:px-2 lg:pb-2 pt-0'
+              dangerouslySetInnerHTML={{ __html: artistCustomSvg }}
             />
           )}
         </div>

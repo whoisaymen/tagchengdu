@@ -13,17 +13,22 @@
  */
 
 // Source: schema.json
-export type About = {
-  _id: string;
-  _type: "about";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  description: LocaleBlockContent;
+export type RoomLineup = {
+  _type: "roomLineup";
+  room: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "room";
+  };
+  entries?: Array<{
+    _key: string;
+  } & LineupEntry>;
 };
 
-export type Lineup = {
-  _type: "lineup";
+export type LineupEntry = {
+  _type: "lineupEntry";
+  type: "resident" | "nonresident";
   artist?: {
     _ref: string;
     _type: "reference";
@@ -31,124 +36,11 @@ export type Lineup = {
     [internalGroqTypeReferenceTo]?: "artist";
   };
   name?: string;
-};
-
-export type Event = {
-  _id: string;
-  _type: "event";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title: string;
-  date: string;
-  description: string;
-  tagLineup?: Array<{
-    _key: string;
-  } & Lineup>;
-  hiddenBarLineup?: Array<{
-    _key: string;
-  } & Lineup>;
-};
-
-export type Artist = {
-  _id: string;
-  _type: "artist";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name: string;
-  slug: Slug;
-  profileImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: LocaleString;
-    _type: "image";
-  };
-  bio: LocaleBlockContent;
-  gigs?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "event";
-  } | {
-    title?: string;
-    date?: string;
-    location?: string;
-    _type: "customGig";
-    _key: string;
-  }>;
-  contact?: string;
-  socialLinks?: Array<{
-    platform?: "instagram" | "soundcloud" | "residentadvisor" | "mixcloud" | "applemusic" | "bandcamp" | "other";
-    url?: string;
-    _type: "socialLink";
-    _key: string;
-  }>;
-  mediaFile?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
-    };
-    media?: unknown;
-    _type: "file";
-  };
-  customSVG: string;
-};
-
-export type LocaleBlockContent = {
-  _type: "localeBlockContent";
-  en?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }>;
-  cn?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }>;
-};
-
-export type LocaleString = {
-  _type: "localeString";
-  en?: string;
-  cn?: string;
+  country?: string;
+  setStartsAt?: string;
+  setEndsAt?: string;
+  note?: string;
+  orderIndex?: number;
 };
 
 export type CallToAction = {
@@ -249,12 +141,292 @@ export type BlockContent = Array<{
   _key: string;
 }>;
 
+export type ConsentClause = {
+  _id: string;
+  _type: "consentClause";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  document?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "consentDocument";
+  };
+  key?: string;
+  section?: "core" | "guidelines";
+  order?: number;
+  title?: LocaleString;
+  body?: LocaleBlockContent;
+  required?: boolean;
+};
+
+export type ConsentDocument = {
+  _id: string;
+  _type: "consentDocument";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  code?: string;
+  version?: string;
+  title?: LocaleString;
+  intro?: LocaleBlockContent;
+  active?: boolean;
+  publishedAt?: string;
+};
+
+export type Event = {
+  _id: string;
+  _type: "event";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  doorsAt: string;
+  startsAt: string;
+  endsAt: string;
+  date?: string;
+  poster?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  description: LocaleBlockContent;
+  lineups?: Array<{
+    _key: string;
+  } & RoomLineup>;
+  ticketTiers?: Array<{
+    nameCn: string;
+    nameEn: string;
+    price: number;
+    totalQuantity: number;
+    saleStartsAt?: string;
+    saleEndsAt?: string;
+    orderIndex?: number;
+    _key: string;
+  }>;
+};
+
+export type Room = {
+  _id: string;
+  _type: "room";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  nameEn: string;
+  nameCn: string;
+  orderIndex?: number;
+  active?: boolean;
+};
+
+export type ShopProduct = {
+  _id: string;
+  _type: "shopProduct";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: LocaleString;
+  customSVG?: string;
+  slug: Slug;
+  orderIndex?: number;
+  price: number;
+  listingImage?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: LocaleString;
+    _type: "image";
+  };
+  heroImage?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: LocaleString;
+    _type: "image";
+  };
+  description: LocaleBlockContent;
+  variants?: Array<{
+    name: LocaleString;
+    slug: string;
+    price?: number;
+    labelColor?: string;
+    isDefault?: boolean;
+    listingImage?: {
+      asset?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+      };
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: LocaleString;
+      _type: "image";
+    };
+    heroImage?: {
+      asset?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+      };
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: LocaleString;
+      _type: "image";
+    };
+    _type: "variant";
+    _key: string;
+  }>;
+};
+
+export type Artist = {
+  _id: string;
+  _type: "artist";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  slug: Slug;
+  profileImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: LocaleString;
+    _type: "image";
+  };
+  country?: string;
+  bio: LocaleBlockContent;
+  set?: string;
+  gigs?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "event";
+  } | {
+    title?: string;
+    date?: string;
+    location?: string;
+    _type: "customGig";
+    _key: string;
+  }>;
+  contact?: string;
+  socialLinks?: Array<{
+    platform?: "instagram" | "soundcloud" | "residentadvisor" | "mixcloud" | "applemusic" | "bandcamp" | "other";
+    url?: string;
+    _type: "socialLink";
+    _key: string;
+  }>;
+  mediaFile?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
+    };
+    media?: unknown;
+    _type: "file";
+  };
+  customSVG: string;
+};
+
+export type LocaleString = {
+  _type: "localeString";
+  en?: string;
+  cn?: string;
+};
+
+export type About = {
+  _id: string;
+  _type: "about";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  description: LocaleBlockContent;
+};
+
+export type LocaleBlockContent = {
+  _type: "localeBlockContent";
+  en?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  cn?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+};
+
 export type Settings = {
   _id: string;
   _type: "settings";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  spaces?: Array<{
+    key: string;
+    nameCn: string;
+    nameEn: string;
+    orderIndex?: number;
+    _type: "space";
+    _key: string;
+  }>;
   title: string;
   description?: Array<{
     children?: Array<{
@@ -549,25 +721,25 @@ export type SanityImagePalette = {
 
 export type SanityImageDimensions = {
   _type: "sanity.imageDimensions";
-  height?: number;
-  width?: number;
-  aspectRatio?: number;
+  height: number;
+  width: number;
+  aspectRatio: number;
 };
 
 export type SanityImageHotspot = {
   _type: "sanity.imageHotspot";
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
+  x: number;
+  y: number;
+  height: number;
+  width: number;
 };
 
 export type SanityImageCrop = {
   _type: "sanity.imageCrop";
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
 };
 
 export type SanityFileAsset = {
@@ -646,7 +818,7 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = About | Lineup | Event | Artist | LocaleBlockContent | LocaleString | CallToAction | Link | InfoSection | BlockContent | Settings | TranslationMetadata | InternationalizedArrayReferenceValue | Post | Person | Page | InternationalizedArrayReference | SanityAssistInstructionTask | SanityAssistTaskStatus | SanityAssistSchemaTypeAnnotations | SanityAssistOutputType | SanityAssistOutputField | SanityAssistInstructionContext | AssistInstructionContext | SanityAssistInstructionUserInput | SanityAssistInstructionPrompt | SanityAssistInstructionFieldRef | SanityAssistInstruction | SanityAssistSchemaTypeField | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = RoomLineup | LineupEntry | CallToAction | Link | InfoSection | BlockContent | ConsentClause | ConsentDocument | Event | Room | ShopProduct | Artist | LocaleString | About | LocaleBlockContent | Settings | TranslationMetadata | InternationalizedArrayReferenceValue | Post | Person | Page | InternationalizedArrayReference | SanityAssistInstructionTask | SanityAssistTaskStatus | SanityAssistSchemaTypeAnnotations | SanityAssistOutputType | SanityAssistOutputField | SanityAssistInstructionContext | AssistInstructionContext | SanityAssistInstructionUserInput | SanityAssistInstructionPrompt | SanityAssistInstructionFieldRef | SanityAssistInstruction | SanityAssistSchemaTypeField | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./sanity/lib/queries.ts
 // Variable: settingsQuery
@@ -657,6 +829,14 @@ export type SettingsQueryResult = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  spaces?: Array<{
+    key: string;
+    nameCn: string;
+    nameEn: string;
+    orderIndex?: number;
+    _type: "space";
+    _key: string;
+  }>;
   title: string;
   description?: Array<{
     children?: Array<{
@@ -951,7 +1131,7 @@ export type AboutQueryResult = {
   description: LocaleBlockContent;
 } | null;
 // Variable: artistQuery
-// Query: *[_type == "artist" && slug.current == $slug][0]{    name,    profileImage{      asset->{        _id,        url,        metadata {          lqip,        }      },      alt,      hotspot,      crop    },    bio,    upNext,    contact,    socialLinks[]{      platform,      url    },    instagram,    soundcloud,    raLink,    musicLink,    customSVG  }
+// Query: *[_type == "artist" && slug.current == $slug][0]{    name,    profileImage{      asset->{        _id,        url,        metadata {          lqip,        }      },      alt,      hotspot,      crop    },    bio,    upNext,    set,    contact,    socialLinks[]{      platform,      url    },    instagram,    soundcloud,    raLink,    musicLink,    customSVG  }
 export type ArtistQueryResult = {
   name: string;
   profileImage: {
@@ -968,6 +1148,7 @@ export type ArtistQueryResult = {
   };
   bio: LocaleBlockContent;
   upNext: null;
+  set: string | null;
   contact: string | null;
   socialLinks: Array<{
     platform: "applemusic" | "bandcamp" | "instagram" | "mixcloud" | "other" | "residentadvisor" | "soundcloud" | null;
@@ -979,19 +1160,173 @@ export type ArtistQueryResult = {
   musicLink: null;
   customSVG: string;
 } | null;
+// Variable: shopProductsQuery
+// Query: *[_type == "shopProduct"] | order(orderIndex asc, _createdAt asc) {      _id,  name,  customSVG,  "slug": slug.current,  orderIndex,  price,  listingImage{      asset->{    _id,    url,    metadata {      lqip,    }  },  alt,  hotspot,  crop  },  heroImage{      asset->{    _id,    url,    metadata {      lqip,    }  },  alt,  hotspot,  crop  },  description,  variants[]{      _key,  slug,  name,  price,  labelColor,  isDefault,  listingImage{      asset->{    _id,    url,    metadata {      lqip,    }  },  alt,  hotspot,  crop  },  heroImage{      asset->{    _id,    url,    metadata {      lqip,    }  },  alt,  hotspot,  crop  }  }  }
+export type ShopProductsQueryResult = Array<{
+  _id: string;
+  name: LocaleString;
+  customSVG: string | null;
+  slug: string;
+  orderIndex: number | null;
+  price: number;
+  listingImage: {
+    asset: {
+      _id: string;
+      url: string | null;
+      metadata: {
+        lqip: string | null;
+      } | null;
+    } | null;
+    alt: LocaleString | null;
+    hotspot: SanityImageHotspot | null;
+    crop: SanityImageCrop | null;
+  } | null;
+  heroImage: {
+    asset: {
+      _id: string;
+      url: string | null;
+      metadata: {
+        lqip: string | null;
+      } | null;
+    } | null;
+    alt: LocaleString | null;
+    hotspot: SanityImageHotspot | null;
+    crop: SanityImageCrop | null;
+  } | null;
+  description: LocaleBlockContent;
+  variants: Array<{
+    _key: string;
+    slug: string;
+    name: LocaleString;
+    price: number | null;
+    labelColor: string | null;
+    isDefault: boolean | null;
+    listingImage: {
+      asset: {
+        _id: string;
+        url: string | null;
+        metadata: {
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: LocaleString | null;
+      hotspot: SanityImageHotspot | null;
+      crop: SanityImageCrop | null;
+    } | null;
+    heroImage: {
+      asset: {
+        _id: string;
+        url: string | null;
+        metadata: {
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: LocaleString | null;
+      hotspot: SanityImageHotspot | null;
+      crop: SanityImageCrop | null;
+    } | null;
+  }> | null;
+}>;
+// Variable: shopProductQuery
+// Query: *[_type == "shopProduct" && slug.current == $slug][0] {      _id,  name,  customSVG,  "slug": slug.current,  orderIndex,  price,  listingImage{      asset->{    _id,    url,    metadata {      lqip,    }  },  alt,  hotspot,  crop  },  heroImage{      asset->{    _id,    url,    metadata {      lqip,    }  },  alt,  hotspot,  crop  },  description,  variants[]{      _key,  slug,  name,  price,  labelColor,  isDefault,  listingImage{      asset->{    _id,    url,    metadata {      lqip,    }  },  alt,  hotspot,  crop  },  heroImage{      asset->{    _id,    url,    metadata {      lqip,    }  },  alt,  hotspot,  crop  }  }  }
+export type ShopProductQueryResult = {
+  _id: string;
+  name: LocaleString;
+  customSVG: string | null;
+  slug: string;
+  orderIndex: number | null;
+  price: number;
+  listingImage: {
+    asset: {
+      _id: string;
+      url: string | null;
+      metadata: {
+        lqip: string | null;
+      } | null;
+    } | null;
+    alt: LocaleString | null;
+    hotspot: SanityImageHotspot | null;
+    crop: SanityImageCrop | null;
+  } | null;
+  heroImage: {
+    asset: {
+      _id: string;
+      url: string | null;
+      metadata: {
+        lqip: string | null;
+      } | null;
+    } | null;
+    alt: LocaleString | null;
+    hotspot: SanityImageHotspot | null;
+    crop: SanityImageCrop | null;
+  } | null;
+  description: LocaleBlockContent;
+  variants: Array<{
+    _key: string;
+    slug: string;
+    name: LocaleString;
+    price: number | null;
+    labelColor: string | null;
+    isDefault: boolean | null;
+    listingImage: {
+      asset: {
+        _id: string;
+        url: string | null;
+        metadata: {
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: LocaleString | null;
+      hotspot: SanityImageHotspot | null;
+      crop: SanityImageCrop | null;
+    } | null;
+    heroImage: {
+      asset: {
+        _id: string;
+        url: string | null;
+        metadata: {
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: LocaleString | null;
+      hotspot: SanityImageHotspot | null;
+      crop: SanityImageCrop | null;
+    } | null;
+  }> | null;
+} | null;
+// Variable: shopProductSlugs
+// Query: *[_type == "shopProduct" && defined(slug.current)] {    "slug": slug.current  }
+export type ShopProductSlugsResult = Array<{
+  slug: string;
+}>;
 // Variable: eventsQuery
-// Query: *[_type == "event"] | order(date asc) {    _id,    title,    date,    description,    tagLineup,    hiddenBarLineup  }
+// Query: *[_type == "event"] | order(coalesce(doorsAt, date) asc) {    _id,    title,    date,    doorsAt,    description,    poster{      asset->{        url      }    },    tagLineup,    hiddenBarLineup,    lineups[]{      room->{        nameEn,        nameCn      },      entries[]{        type,        name,        artist->{          name        }      }    }  }
 export type EventsQueryResult = Array<{
   _id: string;
   title: string;
-  date: string;
-  description: string;
-  tagLineup: Array<{
-    _key: string;
-  } & Lineup> | null;
-  hiddenBarLineup: Array<{
-    _key: string;
-  } & Lineup> | null;
+  date: string | null;
+  doorsAt: string;
+  description: LocaleBlockContent;
+  poster: {
+    asset: {
+      url: string | null;
+    } | null;
+  } | null;
+  tagLineup: null;
+  hiddenBarLineup: null;
+  lineups: Array<{
+    room: {
+      nameEn: string;
+      nameCn: string;
+    };
+    entries: Array<{
+      type: "nonresident" | "resident";
+      name: string | null;
+      artist: {
+        name: string;
+      } | null;
+    }> | null;
+  }> | null;
 }>;
 
 // Query TypeMap
@@ -1009,7 +1344,10 @@ declare module "@sanity/client" {
     "\n  *[_type == \"page\" && defined(slug.current)]\n  {\"slug\": slug.current}\n": PagesSlugsResult;
     "\n  *[_type == \"artist\" && defined(slug.current)]\n  {\n    \"slug\": slug.current,\n    \"name\": name\n  }\n": ArtistsSlugsResult;
     "\n  *[_type == \"about\"][0]{\n    description\n  }\n": AboutQueryResult;
-    "\n  *[_type == \"artist\" && slug.current == $slug][0]{\n    name,\n    profileImage{\n      asset->{\n        _id,\n        url,\n        metadata {\n          lqip,\n        }\n      },\n      alt,\n      hotspot,\n      crop\n    },\n    bio,\n    upNext,\n    contact,\n    socialLinks[]{\n      platform,\n      url\n    },\n    instagram,\n    soundcloud,\n    raLink,\n    musicLink,\n    customSVG\n  }\n": ArtistQueryResult;
-    "\n  *[_type == \"event\"] | order(date asc) {\n    _id,\n    title,\n    date,\n    description,\n    tagLineup,\n    hiddenBarLineup\n  }\n": EventsQueryResult;
+    "\n  *[_type == \"artist\" && slug.current == $slug][0]{\n    name,\n    profileImage{\n      asset->{\n        _id,\n        url,\n        metadata {\n          lqip,\n        }\n      },\n      alt,\n      hotspot,\n      crop\n    },\n    bio,\n    upNext,\n    set,\n    contact,\n    socialLinks[]{\n      platform,\n      url\n    },\n    instagram,\n    soundcloud,\n    raLink,\n    musicLink,\n    customSVG\n  }\n": ArtistQueryResult;
+    "\n  *[_type == \"shopProduct\"] | order(orderIndex asc, _createdAt asc) {\n    \n  _id,\n  name,\n  customSVG,\n  \"slug\": slug.current,\n  orderIndex,\n  price,\n  listingImage{\n    \n  asset->{\n    _id,\n    url,\n    metadata {\n      lqip,\n    }\n  },\n  alt,\n  hotspot,\n  crop\n\n  },\n  heroImage{\n    \n  asset->{\n    _id,\n    url,\n    metadata {\n      lqip,\n    }\n  },\n  alt,\n  hotspot,\n  crop\n\n  },\n  description,\n  variants[]{\n    \n  _key,\n  slug,\n  name,\n  price,\n  labelColor,\n  isDefault,\n  listingImage{\n    \n  asset->{\n    _id,\n    url,\n    metadata {\n      lqip,\n    }\n  },\n  alt,\n  hotspot,\n  crop\n\n  },\n  heroImage{\n    \n  asset->{\n    _id,\n    url,\n    metadata {\n      lqip,\n    }\n  },\n  alt,\n  hotspot,\n  crop\n\n  }\n\n  }\n\n  }\n": ShopProductsQueryResult;
+    "\n  *[_type == \"shopProduct\" && slug.current == $slug][0] {\n    \n  _id,\n  name,\n  customSVG,\n  \"slug\": slug.current,\n  orderIndex,\n  price,\n  listingImage{\n    \n  asset->{\n    _id,\n    url,\n    metadata {\n      lqip,\n    }\n  },\n  alt,\n  hotspot,\n  crop\n\n  },\n  heroImage{\n    \n  asset->{\n    _id,\n    url,\n    metadata {\n      lqip,\n    }\n  },\n  alt,\n  hotspot,\n  crop\n\n  },\n  description,\n  variants[]{\n    \n  _key,\n  slug,\n  name,\n  price,\n  labelColor,\n  isDefault,\n  listingImage{\n    \n  asset->{\n    _id,\n    url,\n    metadata {\n      lqip,\n    }\n  },\n  alt,\n  hotspot,\n  crop\n\n  },\n  heroImage{\n    \n  asset->{\n    _id,\n    url,\n    metadata {\n      lqip,\n    }\n  },\n  alt,\n  hotspot,\n  crop\n\n  }\n\n  }\n\n  }\n": ShopProductQueryResult;
+    "\n  *[_type == \"shopProduct\" && defined(slug.current)] {\n    \"slug\": slug.current\n  }\n": ShopProductSlugsResult;
+    "\n  *[_type == \"event\"] | order(coalesce(doorsAt, date) asc) {\n    _id,\n    title,\n    date,\n    doorsAt,\n    description,\n    poster{\n      asset->{\n        url\n      }\n    },\n    tagLineup,\n    hiddenBarLineup,\n    lineups[]{\n      room->{\n        nameEn,\n        nameCn\n      },\n      entries[]{\n        type,\n        name,\n        artist->{\n          name\n        }\n      }\n    }\n  }\n": EventsQueryResult;
   }
 }

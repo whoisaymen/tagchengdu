@@ -1,19 +1,10 @@
-import {ArchiveIcon, CalendarIcon, CogIcon, ListIcon} from '@sanity/icons'
+import {CalendarIcon, CogIcon, ListIcon, DocumentIcon} from '@sanity/icons'
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
-import pluralize from 'pluralize-esm'
 import {singleton} from '../lib/utils'
-import {VscServerProcess, VscInfo, VscPerson} from 'react-icons/vsc'
-
-/**
- * Structure builder is useful whenever you want to control how documents are grouped and
- * listed in the studio or for adding additional in-studio previews or content to documents.
- * Learn more: https://www.sanity.io/docs/structure-builder-introduction
- */
-
-const DISABLED_TYPES = ['settings', 'assist.instruction.context']
+import {VscInfo, VscLaw} from 'react-icons/vsc'
 
 const currentYear = new Date().getFullYear()
-const years = [currentYear - 1, currentYear, currentYear + 1] // e.g. [2024, 2025, 2026]
+const years = [currentYear - 1, currentYear, currentYear + 1]
 
 const months = [
   {title: 'January 一月', value: 1},
@@ -37,9 +28,38 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
       S.divider(),
 
       singleton(S, 'about', 'About 关于').icon(VscInfo),
+
       S.divider(),
 
-      S.documentTypeListItem('artist').title('DJs'),
+      // =========================
+      // CORE CONTENT
+      // =========================
+
+      S.listItem()
+        .title('DJs')
+        .child(
+          S.documentTypeList('artist')
+            .title('DJs')
+            .defaultOrdering([{field: 'name', direction: 'asc'}]),
+        ),
+
+      S.listItem()
+        .title('Shop 商品')
+        .icon(DocumentIcon)
+        .child(
+          S.documentTypeList('shopProduct')
+            .title('Shop 商品')
+            .defaultOrdering([{field: 'orderIndex', direction: 'asc'}]),
+        ),
+
+      S.listItem()
+        .title('Rooms 空间')
+        .child(
+          S.documentTypeList('room')
+            .title('Rooms 空间')
+            .defaultOrdering([{field: 'orderIndex', direction: 'asc'}]),
+        ),
+
       S.listItem()
         .title('Events 活动')
         .icon(CalendarIcon)
@@ -47,6 +67,16 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
           S.list()
             .title('Events 活动')
             .items([
+              S.listItem()
+                .title('Upcoming 即将开始')
+                .icon(CalendarIcon)
+                .child(
+                  S.documentTypeList('event')
+                    .title('Upcoming 即将开始')
+                    .filter('_type == "event" && date >= now()')
+                    .defaultOrdering([{field: 'date', direction: 'asc'}]),
+                ),
+
               S.listItem()
                 .title('All Events 所有活动')
                 .icon(ListIcon)
@@ -56,9 +86,9 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
                     .filter('_type == "event"')
                     .defaultOrdering([{field: 'date', direction: 'desc'}]),
                 ),
+
               S.divider(),
 
-              // Years with months
               ...years.map((year) =>
                 S.listItem()
                   .title(`${year} 年`)
@@ -67,18 +97,20 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
                     S.list()
                       .title(`${year} 年`)
                       .items(
-                        months.map((month) => {
-                          return S.listItem()
+                        months.map((month) =>
+                          S.listItem()
                             .title(month.title)
                             .child(
                               S.documentTypeList('event')
                                 .title(`${month.title} ${year}`)
                                 .filter(
-                                  `_type == "event" && date match "${year}-${month.value.toString().padStart(2, '0')}*"`,
+                                  `_type == "event" && date match "${year}-${month.value
+                                    .toString()
+                                    .padStart(2, '0')}*"`,
                                 )
                                 .defaultOrdering([{field: 'date', direction: 'asc'}]),
-                            )
-                        }),
+                            ),
+                        ),
                       ),
                   ),
               ),
@@ -86,14 +118,69 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
         ),
 
       S.divider(),
-      // ...S.documentTypeListItems()
-      //   // Remove the "assist.instruction.context" and "settings" content  from the list of content types
-      //   .filter((listItem: any) => !DISABLED_TYPES.includes(listItem.getId()))
-      //   // Pluralize the title of each document type.  This is not required but just an option to consider.
-      //   .map((listItem) => {
-      //     return listItem.title(pluralize(listItem.getTitle() as string))
-      //   }),
-      // // Settings Singleton in order to view/edit the one particular document for Settings.  Learn more about Singletons: https://www.sanity.io/docs/create-a-link-to-a-single-edit-page-in-your-main-document-type-list
+
+      // =========================
+      // CONSENT
+      // =========================
+
+      S.listItem()
+        .title('Consent 公约')
+        .icon(VscLaw)
+        .child(
+          S.list()
+            .title('Consent Management 公约管理')
+            .items([
+              S.listItem()
+                .title('Documents 文档')
+                .icon(DocumentIcon)
+                .child(
+                  S.documentTypeList('consentDocument')
+                    .title('Consent Documents 公约文档')
+                    .filter('_type == "consentDocument"')
+                    .defaultOrdering([{field: 'publishedAt', direction: 'desc'}])
+                    .child((documentId) =>
+                      S.list()
+                        .title('Document')
+                        .items([
+                          S.listItem()
+                            .title('Edit Document')
+                            .icon(DocumentIcon)
+                            .child(
+                              S.document().schemaType('consentDocument').documentId(documentId),
+                            ),
+                          S.listItem()
+                            .title('Clauses 条款')
+                            .icon(ListIcon)
+                            .child(
+                              S.documentList()
+                                .title('Clauses')
+                                .filter('_type == "consentClause" && document._ref == $documentId')
+                                .params({documentId})
+                                .defaultOrdering([{field: 'order', direction: 'asc'}]),
+                            ),
+                        ]),
+                    ),
+                ),
+
+              S.listItem()
+                .title('All Clauses 所有条款')
+                .icon(ListIcon)
+                .child(
+                  S.documentTypeList('consentClause')
+                    .title('Consent Clauses 公约条款')
+                    .defaultOrdering([
+                      {field: 'section', direction: 'asc'},
+                      {field: 'order', direction: 'asc'},
+                    ]),
+                ),
+            ]),
+        ),
+
+      S.divider(),
+
+      // =========================
+      // SETTINGS
+      // =========================
       S.listItem()
         .title('Settings 设置')
         .child(S.document().schemaType('settings').documentId('siteSettings'))

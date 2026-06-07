@@ -1,0 +1,131 @@
+/**
+ * This config is used to configure your Sanity Studio.
+ * Learn more: https://www.sanity.io/docs/configuration
+ */
+import { defineConfig } from 'sanity';
+import { structureTool } from 'sanity/structure';
+import { visionTool } from '@sanity/vision';
+import { schemaTypes } from './src/schemaTypes';
+import { structure } from './src/structure';
+import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
+import { presentationTool, defineDocuments, defineLocations, } from 'sanity/presentation';
+import { assist } from '@sanity/assist';
+import { documentInternationalization } from '@sanity/document-internationalization';
+import StudioLogoNew from './components/StudioLogo';
+// Environment variables for project configuration
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID';
+const dataset = process.env.SANITY_STUDIO_DATASET || 'production';
+// URL for preview functionality, defaults to localhost:3000 if not set
+const SANITY_STUDIO_PREVIEW_URL = process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:3000';
+// Define the home location for the presentation tool
+const homeLocation = {
+    title: 'Home',
+    href: '/',
+};
+// resolveHref() is a convenience function that resolves the URL
+// path for different document types and used in the presentation tool.
+function resolveHref(documentType, slug) {
+    switch (documentType) {
+        case 'post':
+            return slug ? `/posts/${slug}` : undefined;
+        case 'page':
+            return slug ? `/${slug}` : undefined;
+        default:
+            console.warn('Invalid document type:', documentType);
+            return undefined;
+    }
+}
+// Main Sanity configuration
+export default defineConfig({
+    name: 'default',
+    title: 'T²',
+    icon: StudioLogoNew,
+    projectId,
+    dataset,
+    plugins: [
+        // Presentation tool configuration for Visual Editing
+        presentationTool({
+            previewUrl: {
+                origin: SANITY_STUDIO_PREVIEW_URL,
+                previewMode: {
+                    enable: '/api/draft-mode/enable',
+                },
+            },
+            resolve: {
+                // The Main Document Resolver API provides a method of resolving a main document from a given route or route pattern. https://www.sanity.io/docs/presentation-resolver-api#57720a5678d9
+                mainDocuments: defineDocuments([
+                    {
+                        route: '/',
+                        filter: `_type == "settings" && _id == "siteSettings"`,
+                    },
+                    {
+                        route: '/:slug',
+                        filter: `_type == "page" && slug.current == $slug || _id == $slug`,
+                    },
+                    {
+                        route: '/posts/:slug',
+                        filter: `_type == "post" && slug.current == $slug || _id == $slug`,
+                    },
+                ]),
+                // Locations Resolver API allows you to define where data is being used in your application. https://www.sanity.io/docs/presentation-resolver-api#8d8bca7bfcd7
+                locations: {
+                    settings: defineLocations({
+                        locations: [homeLocation],
+                        message: 'This document is used on all pages',
+                        tone: 'positive',
+                    }),
+                    page: defineLocations({
+                        select: {
+                            name: 'name',
+                            slug: 'slug.current',
+                        },
+                        resolve: (doc) => ({
+                            locations: [
+                                {
+                                    title: (doc === null || doc === void 0 ? void 0 : doc.name) || 'Untitled',
+                                    href: resolveHref('page', doc === null || doc === void 0 ? void 0 : doc.slug),
+                                },
+                            ],
+                        }),
+                    }),
+                    post: defineLocations({
+                        select: {
+                            title: 'title',
+                            slug: 'slug.current',
+                        },
+                        resolve: (doc) => ({
+                            locations: [
+                                {
+                                    title: (doc === null || doc === void 0 ? void 0 : doc.title) || 'Untitled',
+                                    href: resolveHref('post', doc === null || doc === void 0 ? void 0 : doc.slug),
+                                },
+                                {
+                                    title: 'Home',
+                                    href: '/',
+                                },
+                            ].filter(Boolean),
+                        }),
+                    }),
+                },
+            },
+        }),
+        structureTool({
+            structure, // Custom studio structure configuration, imported from ./src/structure.ts
+        }),
+        // Additional plugins for enhanced functionality
+        unsplashImageAsset(),
+        assist(),
+        visionTool(),
+        documentInternationalization({
+            supportedLanguages: [
+                { id: 'en', title: 'English' },
+                { id: 'cn', title: '中文' },
+            ],
+            schemaTypes: ['post', 'page'],
+        }),
+    ],
+    // Schema configuration, imported from ./src/schemaTypes/index.ts
+    schema: {
+        types: schemaTypes,
+    },
+});

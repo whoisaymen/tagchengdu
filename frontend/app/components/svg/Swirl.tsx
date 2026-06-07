@@ -1,5 +1,6 @@
 'use client'
 
+import type { CSSProperties } from 'react'
 import { motion } from 'framer-motion'
 
 interface SwirlProps {
@@ -7,6 +8,7 @@ interface SwirlProps {
     fill?: string
   }
   className?: string
+  style?: CSSProperties
   animate?: any
   transition?: any
   svgAnimate?: any
@@ -16,6 +18,7 @@ interface SwirlProps {
 const Swirl: React.FC<SwirlProps> = ({
   theme,
   className,
+  style,
   animate,
   transition,
   svgAnimate,
@@ -31,6 +34,7 @@ const Swirl: React.FC<SwirlProps> = ({
       WebkitMaskImage: 'radial-gradient(circle, white 80%, transparent 100%)',
       mixBlendMode: 'lighten',
       opacity: 0.3,
+      ...style,
     }}
   >
     <motion.svg

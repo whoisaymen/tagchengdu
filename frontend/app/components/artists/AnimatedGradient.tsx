@@ -9,7 +9,7 @@ export default function AnimatedGradient() {
         pointer-events-none absolute
         lg:top-0 lg:bottom-0 lg:right-0 lg:left-auto
         lg:h-full lg:w-[30%]
-        lg:bg-gradient-to-l lg:from-[#b25403] lg:to-transparent
+        lg:bg-gradient-to-l lg:from-[var(--artist-image-fade)] lg:to-transparent
         hidden lg:block
       '
       initial={{ width: '20%' }}

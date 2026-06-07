@@ -1,81 +1,65 @@
-// frontend/app/shop/page.tsx
-import Link from 'next/link'
-import { useState } from 'react'
-import ShopCart from '../../components/shop/ShopCart'
-import { settingsQuery } from '@/sanity/lib/queries'
+import Image from 'next/image'
+import { Link } from '@/i18n/navigation'
 import { sanityFetch } from '@/sanity/lib/live'
+import { shopProductsQuery } from '@/sanity/lib/queries'
+import {
+  getLocalizedText,
+  getShopProducts,
+  SHOP_LANDING_POSITIONS,
+  type SanityShopProduct,
+} from '@/app/components/shop/shopData'
+import ShopCart from '../../components/shop/ShopCart'
 
-const items = [
-  {
-    id: 'tag-logo-tshirt', // Add unique ID (using slug for simplicity)
-    name: 'TAG Logo T-Shirt',
-    slug: 'tag-logo-tshirt',
-    image: '/images/image.png',
-    price: 180,
-    description: 'Classic black T-shirt with .TAG logo. 100% cotton.',
-  },
-  {
-    id: 'tag-tote-bag', // Add unique ID
-    name: 'TAG Tote Bag',
-    slug: 'tag-tote-bag',
-    image: '/images/image2.png',
-    price: 80,
-    description: 'Heavy-duty tote bag for your records and more.',
-  },
-  {
-    id: 'tag-cap', // Add unique ID
-    name: 'TAG Cap',
-    slug: 'tag-cap',
-    image: '/images/image.png',
-    price: 120,
-    description: 'Black cap with embroidered .TAG logo.',
-  },
-]
+type Props = {
+  params: Promise<{ locale: string }>
+}
 
-const mobileOffsets = [
-  'ml-[50%] mt-2', // first item: right
-  'ml-0 mr-auto -mt-6', // second item: left, up
-  'ml-auto mr-0 mt-8', // third item: right, down
-]
+export default async function ShopPage(props: Props) {
+  const { locale } = await props.params
+  const { data } = (await sanityFetch({
+    query: shopProductsQuery,
+  })) as { data: SanityShopProduct[] | null }
 
-const desktopOffsets = [
-  'lg:-translate-y-2 lg:translate-x-2',
-  'lg:translate-y-4 lg:-translate-x-4',
-  'lg:-translate-y-3 lg:translate-x-3',
-]
-
-export default async function ShopPage() {
-  const { data: settings } = await sanityFetch({
-    query: settingsQuery,
-  })
+  const products = getShopProducts(data)
+    .filter((product) => Boolean(product.listingImage))
+    .slice(0, 3)
 
   return (
-    <main className='flex flex-col items-center justify-center h-full w-full font-[family-name:var(--font-kleber)] overflow-y-scroll'>
-      <h1 className='absolute uppercase text-[7rem] lg:text-[20rem] text-center leading-[0.75] max-w-7xl top-1/2  -translate-y-1/2 text-[#E9EDB9] mix-blend-hue z-[10000]'>
-        To Another Galaxy
-      </h1>
+    <main className='relative min-h-svh w-full overflow-hidden font-[family-name:var(--font-kleber)]'>
+      <div className='pointer-events-none absolute inset-0 flex items-center justify-center px-2 sm:px-4'>
+        <h1 className='relative z-10 text-center uppercase text-[var(--site-paper)] mix-blend-exclusion text-[clamp(7.4rem,21.5vw,10rem)] md:text-[clamp(4.75rem,17vw,20rem)] leading-[0.74] md:leading-[0.76] tracking-[-0.03em]'>
+          <span className='block'>To</span>
+          <span className='block'>Another</span>
+          <span className='block'>Galaxy</span>
+        </h1>
+      </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-8 w-fullh-full max-w-5xl py-16'>
-        {items.map((item, i) => (
+      <div className='relative min-h-svh w-full pb-20 md:pb-0'>
+        {products.map((product, index) => (
           <Link
-            key={item.slug}
-            href={`/shop/${item.slug}`}
-            className={`
-                
-                ${mobileOffsets[i] || ''}
-                ${desktopOffsets[i] || ''}
-              `}
+            key={product.id}
+            href={`/shop/${product.slug}`}
+            className={`${SHOP_LANDING_POSITIONS[index] || 'absolute left-1/2 top-1/2 w-[42vw] -translate-x-1/2 -translate-y-1/2 md:w-[16vw]'} z-[1100] block transition-transform duration-200 hover:scale-[1.02]`}
           >
-            <img
-              src={item.image}
-              alt={item.name}
-              className='w-48 h-full object-cover rounded-lg mb-4'
-            />
+            <div
+              className='shop-packshot-buzz origin-center'
+              style={{ animationDelay: `${index * 120}ms` }}
+            >
+              <Image
+                src={product.listingImage || '/images/image.png'}
+                alt={getLocalizedText(product.name, locale)}
+                width={900}
+                height={900}
+                priority={index === 0}
+                sizes='(max-width: 767px) 56vw, (max-width: 1023px) 26vw, 20vw'
+                className='h-auto w-full object-contain bg-transparent shadow-none'
+              />
+            </div>
           </Link>
         ))}
       </div>
-      {/* Cart component */}
-      <ShopCart items={items} />
+
+      <ShopCart />
     </main>
   )
 }
